@@ -26,7 +26,7 @@ comando contra el cluster.
 |---|---|
 | `bootstrap/` | La Application raíz (patrón *app of apps*) y las Applications que componen el workshop |
 | `platform/argocd/` | Configuración del propio Argo CD: el AppProject que acota qué puede desplegarse |
-| `platform/pipelines/` | Pipeline de Tekton que construye la imagen y la identidad que lo ejecuta |
+| `platform/pipelines/` | Los dos pipelines de Tekton (CI y CD) y la identidad que los ejecuta |
 | `platform/connectivity-link/` | Custom Resource de Kuadrant, plano de control de Connectivity Link |
 | `platform/gateway/` | Gateway compartido, TLSPolicy y AuthPolicy por defecto |
 | `apps/servicio-demo/` | Deployment, Service y ConfigMap de la aplicación, con overlays `dev` y `test` |
@@ -54,20 +54,32 @@ orden importa:
 | 2 | Aplicación y pipelines | Necesitan el gateway ya disponible |
 | 3 | Políticas | Se declaran sobre el HTTPRoute de la aplicación, que debe existir antes |
 
-## Construcción de la imagen
+## Pipelines: CI y CD separados
 
-El Pipeline `construir-y-publicar` clona `workshop-app`, construye la imagen con
-Buildah y la publica. Se lanza con un PipelineRun:
+El flujo está partido en dos pipelines, cada uno con una responsabilidad clara:
+
+- **`ci-construir-imagen`** — clona `workshop-app`, construye la imagen con
+  Buildah, la firma con Tekton Chains, la publica, y escribe el digest recién
+  construido en este repositorio. Ese `git push` es lo que dispara el CD.
+- **`cd-desplegar-aplicacion`** — clona este repositorio, valida que el overlay
+  renderiza, y le pide a Argo CD que sincronice la Application. No reconstruye ni
+  toca el código.
+
+Cada uno se lanza con su PipelineRun de ejemplo:
 
 ```bash
-oc create -f ejemplos/construir-y-publicar-pipelinerun.yaml
+oc create -f ejemplos/ci-construir-imagen-pipelinerun.yaml -n workshop-demo-dev
 ```
 
 En este entorno la imagen se publica en el **registro interno de OpenShift**
 (`image-registry.openshift-image-registry.svc:5000`). En una plataforma real
 sería el **registro corporativo (Quay)**, y la credencial de publicación se
 inyectaría como un Secret de tipo `docker` referenciado por su **nombre** desde
-el workspace `dockerconfig` de la tarea de construcción.
+el workspace de la tarea de construcción.
+
+> Tekton corre **solo en el cluster hub**: el CI construye y el CD le pide a Argo
+> que despliegue. Ninguna de las dos cosas necesita ejecutarse en los clusters de
+> destino — de eso se encarga Argo CD.
 
 ## Exposición y políticas
 

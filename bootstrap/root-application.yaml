@@ -17,7 +17,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/rh-workshop/workshop-config.git
+    repoURL: https://github.com/rh-workshop/workshop-demo-config.git
     targetRevision: main
     path: bootstrap/aplicaciones
   destination:

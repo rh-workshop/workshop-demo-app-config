@@ -10,7 +10,7 @@ metadata:
   name: cd-desplegar-aplicacion
 spec:
   params:
-    - {name: repo-configuracion, default: "https://github.com/rh-workshop/workshop-config.git"}
+    - {name: repo-configuracion, default: "https://github.com/rh-workshop/workshop-demo-config.git"}
     - {name: ruta-overlay, default: apps/servicio-demo/overlays/dev}
     - {name: aplicacion-argocd, default: servicio-demo-dev}
   workspaces:

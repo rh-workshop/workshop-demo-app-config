@@ -11,8 +11,8 @@ metadata:
   name: ci-construir-imagen
 spec:
   params:
-    - {name: repo-aplicacion, default: "https://github.com/rh-workshop/workshop-app.git"}
-    - {name: repo-configuracion, default: "https://github.com/rh-workshop/workshop-config.git"}
+    - {name: repo-aplicacion, default: "https://github.com/rh-workshop/workshop-demo-app.git"}
+    - {name: repo-configuracion, default: "https://github.com/rh-workshop/workshop-demo-config.git"}
     - {name: revision, default: main}
     - name: imagen
     - {name: containerfile, default: ./Containerfile}

@@ -23,7 +23,7 @@ spec:
 
   # Solo se admite el repositorio de configuración del workshop.
   sourceRepos:
-    - https://github.com/rh-workshop/workshop-config.git
+    - https://github.com/rh-workshop/workshop-demo-config.git
 
   # Destinos permitidos: los namespaces de plataforma.
   destinations:
