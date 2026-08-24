@@ -1,0 +1,38 @@
+# Pipeline de CD: valida el manifiesto y sincroniza con Argo CD.
+#
+# Es la mitad "despliegue" del flujo. Lo dispara el git push que hace el CI al
+# repo de configuracion. CD NO reconstruye ni toca el codigo: solo lee el repo de
+# CONFIGURACION, valida que el overlay renderiza, y le pide a Argo que sincronice
+# la Application.
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: cd-desplegar-aplicacion
+spec:
+  params:
+    - {name: repo-configuracion, default: "https://github.com/rh-workshop/workshop-config.git"}
+    - {name: ruta-overlay, default: apps/servicio-demo/overlays/dev}
+    - {name: aplicacion-argocd, default: servicio-demo-dev}
+  workspaces:
+    - name: configuracion
+  tasks:
+    - name: clonar-repo-configuracion
+      taskRef: {resolver: cluster, params: [{name: kind, value: task}, {name: name, value: git-clone}, {name: namespace, value: openshift-pipelines}]}
+      params:
+        - {name: URL, value: $(params.repo-configuracion)}
+        - {name: REVISION, value: main}
+      workspaces: [{name: output, workspace: configuracion}]
+
+    - name: validar-manifiestos-kustomize
+      runAfter: [clonar-repo-configuracion]
+      taskRef: {resolver: cluster, params: [{name: kind, value: task}, {name: name, value: openshift-client}, {name: namespace, value: openshift-pipelines}]}
+      params:
+        - {name: SCRIPT, value: "oc kustomize $(params.ruta-overlay)"}
+      workspaces: [{name: manifest_dir, workspace: configuracion}]
+
+    - name: sincronizar-con-argocd
+      runAfter: [validar-manifiestos-kustomize]
+      taskRef: {resolver: cluster, params: [{name: kind, value: task}, {name: name, value: argocd-task-sync-and-wait}, {name: namespace, value: openshift-pipelines}]}
+      params:
+        - {name: application-name, value: $(params.aplicacion-argocd)}
+        - {name: revision, value: HEAD}

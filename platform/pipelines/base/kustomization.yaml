@@ -1,4 +1,4 @@
-# Definiciones de construcción: el Pipeline y la identidad que lo ejecuta.
+# Definiciones de los pipelines (CI y CD separados) y la identidad que los ejecuta.
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
@@ -6,4 +6,5 @@ resources:
   - constructor-serviceaccount.yaml
   - constructor-rolebinding.yaml
   - constructor-scc-rolebinding.yaml
-  - construir-y-publicar-pipeline.yaml
+  - ci-construir-imagen-pipeline.yaml
+  - cd-desplegar-aplicacion-pipeline.yaml
