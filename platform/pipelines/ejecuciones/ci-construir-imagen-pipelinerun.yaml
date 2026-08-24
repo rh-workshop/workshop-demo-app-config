@@ -1,10 +1,10 @@
 # Ejecución del pipeline de CI.
 #
 # Un PipelineRun es una EJECUCIÓN concreta, no una definición: por eso vive en
-# "ejemplos/" y no lo gestiona Argo CD. Se crea con "oc create" (no "oc apply"),
+# "platform/pipelines/ejecuciones/" (junto al pipeline) y no lo gestiona Argo CD. Se crea con "oc create" (no "oc apply"),
 # porque cada ejecución necesita un nombre distinto; de ahí "generateName".
 #
-#   oc create -f ejemplos/ci-construir-imagen-pipelinerun.yaml -n workshop-demo-dev
+#   oc create -f platform/pipelines/ejecuciones/ci-construir-imagen-pipelinerun.yaml -n workshop-demo-dev
 apiVersion: tekton.dev/v1
 kind: PipelineRun
 metadata:

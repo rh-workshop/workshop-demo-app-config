@@ -26,7 +26,7 @@ comando contra el cluster.
 |---|---|
 | `bootstrap/` | La Application raíz (patrón *app of apps*) y las Applications que componen el workshop |
 | `platform/argocd/` | Configuración del propio Argo CD: el AppProject que acota qué puede desplegarse |
-| `platform/pipelines/` | Los dos pipelines de Tekton (CI y CD) y la identidad que los ejecuta |
+| `platform/pipelines/` | Los dos pipelines de Tekton (CI y CD), la identidad que los ejecuta, y en `ejecuciones/` los PipelineRun de ejemplo (se lanzan a mano, Argo no los toca) |
 | `platform/connectivity-link/` | Custom Resource de Kuadrant, plano de control de Connectivity Link |
 | `platform/gateway/` | Gateway compartido, TLSPolicy y AuthPolicy por defecto |
 | `apps/servicio-demo/` | Deployment, Service y ConfigMap de la aplicación, con overlays `dev` y `test` |
@@ -68,7 +68,7 @@ El flujo está partido en dos pipelines, cada uno con una responsabilidad clara:
 Cada uno se lanza con su PipelineRun de ejemplo:
 
 ```bash
-oc create -f ejemplos/ci-construir-imagen-pipelinerun.yaml -n workshop-demo-dev
+oc create -f platform/pipelines/ejecuciones/ci-construir-imagen-pipelinerun.yaml -n workshop-demo-dev
 ```
 
 En este entorno la imagen se publica en el **registro interno de OpenShift**

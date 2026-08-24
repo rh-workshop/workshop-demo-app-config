@@ -3,7 +3,7 @@
 # Normalmente lo dispara el git push que hace el CI, pero también se puede lanzar
 # a mano para probar solo el despliegue. Se crea con "oc create" (no "oc apply").
 #
-#   oc create -f ejemplos/cd-desplegar-aplicacion-pipelinerun.yaml -n workshop-demo-dev
+#   oc create -f platform/pipelines/ejecuciones/cd-desplegar-aplicacion-pipelinerun.yaml -n workshop-demo-dev
 apiVersion: tekton.dev/v1
 kind: PipelineRun
 metadata:
