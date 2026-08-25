@@ -27,5 +27,38 @@ spec:
           env:
             - name: APP_VERSION
               value: "1.0.0-stable"
+            - name: APP_NOMBRE
+              value: canary-service
             - name: APP_ENTORNO
               value: dev
+          # Las sondas usan el endpoint de salud de la aplicación.
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+          # Contexto de seguridad restrictivo: sin privilegios, sin escalada y
+          # con el sistema de archivos raíz en solo lectura.
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            capabilities:
+              drop:
+                - ALL
+            seccompProfile:
+              type: RuntimeDefault
