@@ -1,0 +1,19 @@
+# Route de OpenShift (passthrough) que lleva el trafico del router al gateway
+# Istio compartido, para el hostname del circuit breaker. Vive en platform-gateway.
+# Sin ella el router devuelve 503 sin llegar al gateway. El host se parchea por overlay.
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: cb-gateway
+  namespace: platform-gateway
+  labels:
+    app.kubernetes.io/part-of: workshop-circuit-breaker
+spec:
+  host: cb-dev.apps.CHANGE_ME_DOMINIO
+  port:
+    targetPort: 443
+  tls:
+    termination: passthrough
+  to:
+    kind: Service
+    name: shared-gateway-istio

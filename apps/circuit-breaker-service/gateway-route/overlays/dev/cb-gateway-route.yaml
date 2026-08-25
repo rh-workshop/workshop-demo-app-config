@@ -1,0 +1,7 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: cb-gateway
+  namespace: platform-gateway
+spec:
+  host: cb-dev.apps.cluster-pvsbw.dyn.redhatworkshops.io
