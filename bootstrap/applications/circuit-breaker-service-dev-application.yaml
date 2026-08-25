@@ -1,0 +1,23 @@
+# Onda 2 — servicio circuit breaker (con Service Mesh / Istio DestinationRule).
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: circuit-breaker-service-dev
+  namespace: openshift-gitops
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  project: workshop-platform
+  source:
+    repoURL: https://github.com/rh-workshop/workshop-demo-app-config.git
+    targetRevision: main
+    path: apps/circuit-breaker-service/overlays/dev
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: circuit-breaker-demo-dev
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

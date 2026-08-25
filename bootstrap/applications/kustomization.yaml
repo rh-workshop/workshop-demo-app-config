@@ -10,3 +10,6 @@ resources:
   - demo-service-dev-application.yaml
   - pipelines-application.yaml
   - policies-dev-application.yaml
+  - canary-service-dev-application.yaml
+  - canary-gateway-route-dev-application.yaml
+  - circuit-breaker-service-dev-application.yaml

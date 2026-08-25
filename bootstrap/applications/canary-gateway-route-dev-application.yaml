@@ -1,0 +1,22 @@
+# Onda 1 — la Route passthrough del canary vive en platform-gateway (junto al
+# gateway), por eso es una Application aparte con ese destino.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: canary-gateway-route-dev
+  namespace: openshift-gitops
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  project: workshop-platform
+  source:
+    repoURL: https://github.com/rh-workshop/workshop-demo-app-config.git
+    targetRevision: main
+    path: apps/canary-service/gateway-route/overlays/dev
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: platform-gateway
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

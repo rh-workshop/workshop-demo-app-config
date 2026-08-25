@@ -1,0 +1,23 @@
+# Onda 2 — servicio canary (canary deployment con Connectivity Link).
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: canary-service-dev
+  namespace: openshift-gitops
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  project: workshop-platform
+  source:
+    repoURL: https://github.com/rh-workshop/workshop-demo-app-config.git
+    targetRevision: main
+    path: apps/canary-service/overlays/dev
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: canary-demo-dev
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
