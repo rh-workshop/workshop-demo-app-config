@@ -12,4 +12,7 @@ resources:
   - policies-dev-application.yaml
   - canary-service-dev-application.yaml
   - canary-gateway-route-dev-application.yaml
+  - canary-image-puller-application.yaml
   - circuit-breaker-service-dev-application.yaml
+  - circuit-breaker-gateway-route-dev-application.yaml
+  - circuit-breaker-image-puller-application.yaml

@@ -35,6 +35,10 @@ spec:
       namespace: platform-gateway
     - server: https://kubernetes.default.svc
       namespace: kuadrant-system
+    - server: https://kubernetes.default.svc
+      namespace: canary-demo-dev
+    - server: https://kubernetes.default.svc
+      namespace: circuit-breaker-demo-dev
 
   # El proyecto necesita crear recursos de ámbito de cluster (Namespace) y las
   # políticas de Connectivity Link.

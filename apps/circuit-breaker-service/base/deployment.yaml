@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - name: app
-          image: image-registry.openshift-image-registry.svc:5000/workshop-demo-dev/servicio-demo:1.0.0
+          image: image-registry.openshift-image-registry.svc:5000/workshop-demo-dev/demo-service:1.0.0
           ports:
             - containerPort: 8080
           env:

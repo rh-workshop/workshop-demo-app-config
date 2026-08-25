@@ -1,0 +1,23 @@
+# Onda 1 — la Route passthrough de circuit-breaker vive en platform-gateway
+# (junto al gateway), por eso es una Application aparte con ese destino. Sin
+# ella el router de OpenShift no sabe llevar el tráfico al Gateway y responde 503.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: circuit-breaker-gateway-route-dev
+  namespace: openshift-gitops
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  project: workshop-platform
+  source:
+    repoURL: https://github.com/rh-workshop/workshop-demo-app-config.git
+    targetRevision: main
+    path: apps/circuit-breaker-service/gateway-route/overlays/dev
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: platform-gateway
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

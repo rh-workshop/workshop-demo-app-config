@@ -14,6 +14,8 @@ spec:
     - {name: app-repo, default: "https://github.com/rh-workshop/workshop-demo-app.git"}
     - {name: config-repo, default: "https://github.com/rh-workshop/workshop-demo-app-config.git"}
     - {name: revision, default: main}
+    # Rama del repo de configuración que se clona y a la que se promociona el digest.
+    - {name: config-revision, default: main}
     - name: image
     - {name: containerfile, default: ./Containerfile}
     - {name: overlay-path, default: apps/demo-service/overlays/dev}
@@ -46,7 +48,7 @@ spec:
       taskRef: {resolver: cluster, params: [{name: kind, value: task}, {name: name, value: git-clone}, {name: namespace, value: openshift-pipelines}]}
       params:
         - {name: URL, value: $(params.config-repo)}
-        - {name: REVISION, value: main}
+        - {name: REVISION, value: $(params.config-revision)}
       workspaces: [{name: output, workspace: config}]
 
     - name: update-digest-with-kustomize
@@ -58,9 +60,13 @@ spec:
         - name: GIT_SCRIPT
           value: |
             cd $(params.overlay-path)
-            sed -i "s|newTag:.*|digest: $(tasks.build-and-publish-image.results.IMAGE_DIGEST)|" kustomization.yaml
+            # Acepta newTag (primera ejecución) y digest (siguientes): así el paso es idempotente.
+            sed -i -E "s|^( *)(newTag|digest):.*|\1digest: $(tasks.build-and-publish-image.results.IMAGE_DIGEST)|" kustomization.yaml
+            # Sin cambios (mismo digest) no hay nada que promocionar: se sale con éxito.
+            git diff --quiet && echo "El overlay ya apunta a este digest; no se promociona nada." && exit 0
             git commit -am "ci: promociona demo-service al digest recien construido"
-            git push origin HEAD
+            # git-clone deja el repo en detached HEAD: hay que calificar la rama destino.
+            git push origin HEAD:$(params.config-revision)
       workspaces:
         - {name: source, workspace: config}
         - {name: basic-auth, workspace: git-credentials}
