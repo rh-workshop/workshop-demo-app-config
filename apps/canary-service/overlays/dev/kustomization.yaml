@@ -13,6 +13,14 @@ patches:
     target:
       kind: AuthPolicy
       name: canary-service
+# La base deja un placeholder y aquí se resuelve la imagen real: es el punto
+# donde el pipeline de CI escribe el digest recién construido. Canary reutiliza
+# la imagen de demo-service (v1 y v2 solo cambian el APP_VERSION que anuncian).
+images:
+  - name: demo-service
+    newName: image-registry.openshift-image-registry.svc:5000/workshop-demo-dev/demo-service
+    newTag: "1.0.0"
+
 labels:
   - pairs:
       app.kubernetes.io/part-of: workshop-canary
