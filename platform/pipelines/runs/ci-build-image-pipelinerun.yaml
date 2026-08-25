@@ -34,11 +34,8 @@ spec:
         spec:
           accessModes:
             - ReadWriteOnce
-          # Se pide explícitamente una clase de almacenamiento de asignación
-          # INMEDIATA. Con la clase por defecto (WaitForFirstConsumer), el
-          # asistente de afinidad de Tekton y el volumen se esperan mutuamente y
-          # la ejecución no llega a arrancar.
-          storageClassName: ocs-external-storagecluster-ceph-rbd-immediate
+          # Con el asistente de afinidad desactivado (ver la anotación de arriba) basta la StorageClass por defecto; descomentar solo si el cluster no tiene una.
+          # storageClassName: <storageclass-del-cluster>
           resources:
             requests:
               storage: 1Gi
@@ -47,7 +44,8 @@ spec:
         spec:
           accessModes:
             - ReadWriteOnce
-          storageClassName: ocs-external-storagecluster-ceph-rbd-immediate
+          # Con el asistente de afinidad desactivado (ver la anotación de arriba) basta la StorageClass por defecto; descomentar solo si el cluster no tiene una.
+          # storageClassName: <storageclass-del-cluster>
           resources:
             requests:
               storage: 1Gi

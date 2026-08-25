@@ -19,7 +19,8 @@ spec:
     - name: https
       port: 443
       protocol: HTTPS
-      hostname: "*.apps.cluster-qthlq.dyn.redhatworkshops.io"
+      # Sustituir por el dominio comodín de apps del cluster (valor genérico de la base; se ajusta por overlay): *.apps.<cluster>.<dominio-base>
+      hostname: "*.apps.cluster.ejemplo.com"
       tls:
         mode: Terminate
         certificateRefs:

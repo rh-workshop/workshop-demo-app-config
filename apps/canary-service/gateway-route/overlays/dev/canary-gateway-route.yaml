@@ -4,4 +4,5 @@ metadata:
   name: canary-gateway
   namespace: platform-gateway
 spec:
-  host: canary-dev.apps.cluster-pvsbw.dyn.redhatworkshops.io
+  # Sustituir por el dominio del cluster de DESARROLLO: apps.<cluster-dev>.<dominio-base>
+  host: canary-dev.apps.cluster-dev.ejemplo.com

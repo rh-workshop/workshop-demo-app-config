@@ -8,7 +8,8 @@ spec:
     - name: shared-gateway
       namespace: platform-gateway
   hostnames:
-    - demo-test.apps.cluster-qthlq.dyn.redhatworkshops.io
+    # Sustituir por el dominio del cluster donde corre TEST (en este workshop, el de DESARROLLO): apps.<cluster-dev>.<dominio-base>
+    - demo-test.apps.cluster-dev.ejemplo.com
   rules:
     - matches:
         - path:

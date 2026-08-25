@@ -4,4 +4,5 @@ metadata:
   name: circuit-breaker-service
 spec:
   hostnames:
-    - cb-dev.apps.cluster-pvsbw.dyn.redhatworkshops.io
+    # Sustituir por el dominio del cluster de DESARROLLO: apps.<cluster-dev>.<dominio-base>
+    - cb-dev.apps.cluster-dev.ejemplo.com

@@ -23,7 +23,8 @@ spec:
           # Solo se acepta un JWT firmado por el emisor de confianza. Sin
           # cabecera Authorization válida, el gateway responde 401.
           jwt:
-            issuerUrl: https://sso.apps.cluster-qthlq.dyn.redhatworkshops.io/realms/workshop
+            # Sustituir por el issuer del Keycloak del cluster (valor genérico de la base; se ajusta por overlay): https://sso.apps.<cluster>.<dominio-base>/realms/workshop
+            issuerUrl: https://sso.apps.cluster.ejemplo.com/realms/workshop
           credentials:
             authorizationHeader:
               prefix: Bearer
