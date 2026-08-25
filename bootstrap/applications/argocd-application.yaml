@@ -1,0 +1,22 @@
+# Onda 0 — configuración del propio Argo CD (el AppProject que acota el resto).
+# Debe existir antes que las Applications que lo declaran como su proyecto.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: workshop-argocd
+  namespace: openshift-gitops
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/rh-workshop/workshop-demo-app-config.git
+    targetRevision: main
+    path: platform/argocd/overlays/dev
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: openshift-gitops
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

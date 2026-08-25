@@ -1,0 +1,66 @@
+# Pipeline de CI: construye la imagen y la promociona en el repo de configuracion.
+#
+# Es la mitad "integracion" del flujo: toma el CODIGO (repo de aplicacion),
+# construye y FIRMA la imagen, la publica en el registro, y luego escribe el
+# digest en el repo de CONFIGURACION. Ese git push es lo que dispara el CD.
+#
+# Maneja los DOS repos: lee el de aplicacion, escribe en el de configuracion.
+apiVersion: tekton.dev/v1
+kind: Pipeline
+metadata:
+  name: ci-build-image
+spec:
+  params:
+    - {name: app-repo, default: "https://github.com/rh-workshop/workshop-demo-app.git"}
+    - {name: config-repo, default: "https://github.com/rh-workshop/workshop-demo-app-config.git"}
+    - {name: revision, default: main}
+    - name: image
+    - {name: containerfile, default: ./Containerfile}
+    - {name: overlay-path, default: apps/demo-service/overlays/dev}
+  workspaces:
+    - name: source
+    - name: config
+    - name: git-credentials
+  results:
+    - name: image-digest
+      value: $(tasks.build-and-publish-image.results.IMAGE_DIGEST)
+  tasks:
+    - name: clone-source-code
+      taskRef: {resolver: cluster, params: [{name: kind, value: task}, {name: name, value: git-clone}, {name: namespace, value: openshift-pipelines}]}
+      params:
+        - {name: URL, value: $(params.app-repo)}
+        - {name: REVISION, value: $(params.revision)}
+      workspaces: [{name: output, workspace: source}]
+
+    - name: build-and-publish-image
+      runAfter: [clone-source-code]
+      taskRef: {resolver: cluster, params: [{name: kind, value: task}, {name: name, value: buildah}, {name: namespace, value: openshift-pipelines}]}
+      params:
+        - {name: IMAGE, value: $(params.image)}
+        - {name: DOCKERFILE, value: $(params.containerfile)}
+        - {name: TLS_VERIFY, value: "false"}
+      workspaces: [{name: source, workspace: source}]
+
+    - name: clone-config-repo
+      runAfter: [build-and-publish-image]
+      taskRef: {resolver: cluster, params: [{name: kind, value: task}, {name: name, value: git-clone}, {name: namespace, value: openshift-pipelines}]}
+      params:
+        - {name: URL, value: $(params.config-repo)}
+        - {name: REVISION, value: main}
+      workspaces: [{name: output, workspace: config}]
+
+    - name: update-digest-with-kustomize
+      runAfter: [clone-config-repo]
+      taskRef: {resolver: cluster, params: [{name: kind, value: task}, {name: name, value: git-cli}, {name: namespace, value: openshift-pipelines}]}
+      params:
+        - {name: GIT_USER_NAME, value: "pipeline-ci"}
+        - {name: GIT_USER_EMAIL, value: "pipeline-ci@ejemplo.local"}
+        - name: GIT_SCRIPT
+          value: |
+            cd $(params.overlay-path)
+            sed -i "s|newTag:.*|digest: $(tasks.build-and-publish-image.results.IMAGE_DIGEST)|" kustomization.yaml
+            git commit -am "ci: promociona demo-service al digest recien construido"
+            git push origin HEAD
+      workspaces:
+        - {name: source, workspace: config}
+        - {name: basic-auth, workspace: git-credentials}

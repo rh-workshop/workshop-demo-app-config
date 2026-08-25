@@ -1,0 +1,18 @@
+# Service interno del servicio de demostración. La exposición al exterior NO se
+# hace con una Route, sino con un HTTPRoute a través del gateway compartido.
+apiVersion: v1
+kind: Service
+metadata:
+  name: demo-service
+  labels:
+    app.kubernetes.io/name: demo-service
+    app.kubernetes.io/part-of: workshop-gitops
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: demo-service
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http
+      protocol: TCP

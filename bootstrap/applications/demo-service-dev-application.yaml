@@ -1,0 +1,23 @@
+# Onda 2 — el servicio de demostración en el entorno de desarrollo.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: demo-service-dev
+  namespace: openshift-gitops
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  project: workshop-platform
+  source:
+    repoURL: https://github.com/rh-workshop/workshop-demo-app-config.git
+    targetRevision: main
+    path: apps/demo-service/overlays/dev
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: workshop-demo-dev
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

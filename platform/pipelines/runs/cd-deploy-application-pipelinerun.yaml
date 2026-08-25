@@ -1,0 +1,30 @@
+# Ejecución del pipeline de CD.
+#
+# Normalmente lo dispara el git push que hace el CI, pero también se puede lanzar
+# a mano para probar solo el despliegue. Se crea con "oc create" (no "oc apply").
+#
+#   oc create -f platform/pipelines/runs/cd-deploy-application-pipelinerun.yaml -n workshop-demo-dev
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  generateName: cd-deploy-application-
+  labels:
+    app.kubernetes.io/part-of: workshop-gitops
+  annotations:
+    pipeline.tekton.dev/affinity-assistant: disabled
+spec:
+  pipelineRef:
+    name: cd-deploy-application
+  # Identidad con permiso para pedirle la sincronización a Argo CD.
+  taskRunTemplate:
+    serviceAccountName: builder
+  workspaces:
+    - name: config
+      volumeClaimTemplate:
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          storageClassName: ocs-external-storagecluster-ceph-rbd-immediate
+          resources:
+            requests:
+              storage: 1Gi

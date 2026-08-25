@@ -1,9 +1,0 @@
-# Valores de configuración propios del entorno de pruebas.
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: servicio-demo-config
-data:
-  APP_VERSION: "1.0.0"
-  APP_ENTORNO: "test"
-  APP_MENSAJE: "Servicio de demostración — entorno de pruebas"

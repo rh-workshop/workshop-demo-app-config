@@ -1,0 +1,58 @@
+# Ejecución del pipeline de CI.
+#
+# Un PipelineRun es una EJECUCIÓN concreta, no una definición: por eso vive en
+# "platform/pipelines/runs/" (junto al pipeline) y no lo gestiona Argo CD. Se crea con "oc create" (no "oc apply"),
+# porque cada ejecución necesita un nombre distinto; de ahí "generateName".
+#
+#   oc create -f platform/pipelines/runs/ci-build-image-pipelinerun.yaml -n workshop-demo-dev
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  generateName: ci-build-image-
+  labels:
+    app.kubernetes.io/part-of: workshop-gitops
+  annotations:
+    # El "asistente de afinidad" de Tekton fuerza a que todas las tareas que
+    # comparten workspace caigan en el mismo nodo. Con una clase de
+    # almacenamiento en modo WaitForFirstConsumer eso produce un bloqueo mutuo:
+    # el volumen espera a que se programe un pod y el pod espera al volumen, y
+    # la ejecución queda Pending con "didn't match pod affinity rules".
+    # Al desactivarlo, cada tarea se programa con normalidad.
+    pipeline.tekton.dev/affinity-assistant: disabled
+spec:
+  pipelineRef:
+    name: ci-build-image
+  # Identidad con permiso para publicar en el registro de imágenes.
+  taskRunTemplate:
+    serviceAccountName: builder
+  params:
+    - name: image
+      value: image-registry.openshift-image-registry.svc:5000/workshop-demo-dev/demo-service:1.0.0
+  workspaces:
+    - name: source
+      volumeClaimTemplate:
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          # Se pide explícitamente una clase de almacenamiento de asignación
+          # INMEDIATA. Con la clase por defecto (WaitForFirstConsumer), el
+          # asistente de afinidad de Tekton y el volumen se esperan mutuamente y
+          # la ejecución no llega a arrancar.
+          storageClassName: ocs-external-storagecluster-ceph-rbd-immediate
+          resources:
+            requests:
+              storage: 1Gi
+    - name: config
+      volumeClaimTemplate:
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          storageClassName: ocs-external-storagecluster-ceph-rbd-immediate
+          resources:
+            requests:
+              storage: 1Gi
+    - name: git-credentials
+      # Secret basic-auth con permiso de push al repo de configuración. Se crea
+      # aparte (nunca se versiona) y se referencia aquí por su nombre.
+      secret:
+        secretName: git-credentials

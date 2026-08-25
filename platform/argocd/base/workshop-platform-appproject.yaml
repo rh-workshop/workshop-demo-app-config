@@ -6,7 +6,7 @@
 # modo que un equipo no pueda desplegar en el espacio de otro.
 #
 # Este proyecto agrupa SOLO los componentes de plataforma (gateway, pipelines,
-# políticas, servicio-demo). Las Applications de los participantes usan un
+# políticas, demo-service). Las Applications de los participantes usan un
 # proyecto aparte, `workshop`, con sus propias barandillas: destinos acotados a
 # los espacios `user*` y su propio origen de repositorios. Separarlos es la
 # práctica recomendada — un proyecto por dominio, para que un equipo no
@@ -23,7 +23,7 @@ spec:
 
   # Solo se admite el repositorio de configuración del workshop.
   sourceRepos:
-    - https://github.com/rh-workshop/workshop-demo-config.git
+    - https://github.com/rh-workshop/workshop-demo-app-config.git
 
   # Destinos permitidos: los namespaces de plataforma.
   destinations:

@@ -17,9 +17,9 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/rh-workshop/workshop-demo-config.git
+    repoURL: https://github.com/rh-workshop/workshop-demo-app-config.git
     targetRevision: main
-    path: bootstrap/aplicaciones
+    path: bootstrap/applications
   destination:
     server: https://kubernetes.default.svc
     namespace: openshift-gitops

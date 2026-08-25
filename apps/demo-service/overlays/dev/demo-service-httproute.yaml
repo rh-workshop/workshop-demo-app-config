@@ -1,0 +1,21 @@
+# Exposición del servicio a través del gateway compartido de la plataforma.
+# El gateway vive en su propio namespace y lo gobierna el equipo de plataforma;
+# la aplicación solo declara su ruta y se adjunta a él.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: demo-service
+spec:
+  parentRefs:
+    - name: shared-gateway
+      namespace: platform-gateway
+  hostnames:
+    - demo-dev.apps.cluster-qthlq.dyn.redhatworkshops.io
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: demo-service
+          port: 8080

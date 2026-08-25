@@ -1,0 +1,19 @@
+# Exposición del servicio de pruebas a través del gateway compartido.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: demo-service
+spec:
+  parentRefs:
+    - name: shared-gateway
+      namespace: platform-gateway
+  hostnames:
+    - demo-test.apps.cluster-qthlq.dyn.redhatworkshops.io
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: demo-service
+          port: 8080

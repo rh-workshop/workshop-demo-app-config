@@ -1,0 +1,12 @@
+# Applications que componen el workshop, ordenadas por onda de sincronización.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: openshift-gitops
+
+resources:
+  - argocd-application.yaml
+  - gateway-application.yaml
+  - demo-service-dev-application.yaml
+  - pipelines-application.yaml
+  - policies-dev-application.yaml

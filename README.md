@@ -1,4 +1,4 @@
-# workshop-config — configuración declarativa del workshop
+# workshop-demo-app-config — configuración declarativa del workshop
 
 Este repositorio contiene **toda la configuración** del flujo GitOps del
 workshop: la plataforma, la aplicación de demostración y las políticas de
@@ -29,7 +29,7 @@ comando contra el cluster.
 | `platform/pipelines/` | Los dos pipelines de Tekton (CI y CD), la identidad que los ejecuta, y en `ejecuciones/` los PipelineRun de ejemplo (se lanzan a mano, Argo no los toca) |
 | `platform/connectivity-link/` | Custom Resource de Kuadrant, plano de control de Connectivity Link |
 | `platform/gateway/` | Gateway compartido, TLSPolicy y AuthPolicy por defecto |
-| `apps/servicio-demo/` | Deployment, Service y ConfigMap de la aplicación, con overlays `dev` y `test` |
+| `apps/demo-service/` | Deployment, Service y ConfigMap de la aplicación, con overlays `dev` y `test` |
 | `policies/` | AuthPolicy y RateLimitPolicy del servicio |
 
 Todos los directorios siguen el patrón **base + overlays** de Kustomize: la
@@ -58,17 +58,17 @@ orden importa:
 
 El flujo está partido en dos pipelines, cada uno con una responsabilidad clara:
 
-- **`ci-construir-imagen`** — clona `workshop-app`, construye la imagen con
+- **`ci-build-image`** — clona `workshop-app`, construye la imagen con
   Buildah, la firma con Tekton Chains, la publica, y escribe el digest recién
   construido en este repositorio. Ese `git push` es lo que dispara el CD.
-- **`cd-desplegar-aplicacion`** — clona este repositorio, valida que el overlay
+- **`cd-deploy-application`** — clona este repositorio, valida que el overlay
   renderiza, y le pide a Argo CD que sincronice la Application. No reconstruye ni
   toca el código.
 
 Cada uno se lanza con su PipelineRun de ejemplo:
 
 ```bash
-oc create -f platform/pipelines/ejecuciones/ci-construir-imagen-pipelinerun.yaml -n workshop-demo-dev
+oc create -f platform/pipelines/runs/ci-build-image-pipelinerun.yaml -n workshop-demo-dev
 ```
 
 En este entorno la imagen se publica en el **registro interno de OpenShift**

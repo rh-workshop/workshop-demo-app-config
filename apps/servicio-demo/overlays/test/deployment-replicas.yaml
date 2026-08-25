@@ -1,7 +1,0 @@
-# Parche estratégico: en pruebas se ejecutan dos réplicas.
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: servicio-demo
-spec:
-  replicas: 2
