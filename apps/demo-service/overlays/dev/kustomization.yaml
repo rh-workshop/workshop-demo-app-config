@@ -12,8 +12,8 @@ resources:
 # La imagen se resuelve contra el registro interno de OpenShift. En una
 # plataforma real este valor apuntaría al registro corporativo (Quay).
 images:
-  - name: workshop-demo-app
-    newName: image-registry.openshift-image-registry.svc:5000/workshop-demo-dev/workshop-demo-app
+  - name: app-workshop
+    newName: image-registry.openshift-image-registry.svc:5000/workshop-demo-dev/app-workshop
     newTag: "1.0.0"
 
 # En desarrollo basta una réplica; los valores de configuración identifican

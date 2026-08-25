@@ -17,8 +17,8 @@ patches:
 # donde el pipeline de CI escribe el digest recién construido. Comparte la imagen
 # con los otros servicios: lo que se demuestra es el corte, no la aplicación.
 images:
-  - name: workshop-demo-app
-    newName: image-registry.openshift-image-registry.svc:5000/workshop-demo-dev/workshop-demo-app
+  - name: app-workshop
+    newName: image-registry.openshift-image-registry.svc:5000/workshop-demo-dev/app-workshop
     newTag: "1.0.0"
 
 labels:

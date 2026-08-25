@@ -27,7 +27,7 @@ spec:
     serviceAccountName: builder
   params:
     - name: image
-      value: image-registry.openshift-image-registry.svc:5000/workshop-demo-dev/workshop-demo-app:1.0.0
+      value: image-registry.openshift-image-registry.svc:5000/workshop-demo-dev/app-workshop:1.0.0
   workspaces:
     - name: source
       volumeClaimTemplate:

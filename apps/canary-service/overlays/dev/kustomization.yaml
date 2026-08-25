@@ -17,8 +17,8 @@ patches:
 # donde el pipeline de CI escribe el digest recién construido. Los tres servicios
 # comparten esta imagen: v1 y v2 solo cambian el APP_VERSION que anuncian.
 images:
-  - name: workshop-demo-app
-    newName: image-registry.openshift-image-registry.svc:5000/workshop-demo-dev/workshop-demo-app
+  - name: app-workshop
+    newName: image-registry.openshift-image-registry.svc:5000/workshop-demo-dev/app-workshop
     newTag: "1.0.0"
 
 labels:
