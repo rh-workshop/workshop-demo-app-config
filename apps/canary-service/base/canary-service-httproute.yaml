@@ -1,0 +1,26 @@
+# El corazon del canary: UN HTTPRoute con dos backendRefs, cada uno con su weight.
+# Connectivity Link (Gateway API) reparte el trafico segun el peso. Subir v2 de
+# 10 -> 50 -> 100 promociona el canary sin downtime; se hace editando estos pesos
+# en Git y dejando que Argo sincronice.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: canary-service
+spec:
+  parentRefs:
+    - name: shared-gateway
+      namespace: platform-gateway
+  hostnames:
+    - canary-dev.apps.CHANGE_ME_DOMINIO
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: canary-service-v1
+          port: 8080
+          weight: 90
+        - name: canary-service-v2
+          port: 8080
+          weight: 10

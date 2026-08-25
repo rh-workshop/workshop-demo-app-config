@@ -1,0 +1,31 @@
+# Servicio protegido por circuit breaker. El breaker lo aplica el sidecar Envoy
+# (inyectado por Istio), no la app: por eso el pod debe entrar al mesh.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: circuit-breaker-service
+  labels:
+    app: circuit-breaker-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: circuit-breaker-service
+  template:
+    metadata:
+      labels:
+        app: circuit-breaker-service
+      annotations:
+        # Fuerza la inyeccion del sidecar de Istio en este pod.
+        sidecar.istio.io/inject: "true"
+    spec:
+      containers:
+        - name: app
+          image: image-registry.openshift-image-registry.svc:5000/workshop-demo-dev/servicio-demo:1.0.0
+          ports:
+            - containerPort: 8080
+          env:
+            - name: APP_VERSION
+              value: "1.0.0"
+            - name: APP_ENTORNO
+              value: dev

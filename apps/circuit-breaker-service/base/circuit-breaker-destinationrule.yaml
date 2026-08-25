@@ -1,0 +1,26 @@
+# El corazon del circuit breaker: una DestinationRule de Istio. El sidecar Envoy
+# la aplica sobre el trafico hacia el Service.
+#
+# connectionPool = el "breaker": limita conexiones y peticiones concurrentes. Al
+# superarlas, Envoy responde 503 en vez de saturar el backend (circuito abierto).
+# outlierDetection = expulsa del balanceo la instancia que devuelve 5xx repetidos,
+# para no seguir mandandole trafico (deteccion de outliers / ejection).
+apiVersion: networking.istio.io/v1
+kind: DestinationRule
+metadata:
+  name: circuit-breaker-service
+spec:
+  host: circuit-breaker-service.circuit-breaker-demo-dev.svc.cluster.local
+  trafficPolicy:
+    connectionPool:
+      tcp:
+        maxConnections: 5
+      http:
+        http1MaxPendingRequests: 5
+        maxRequestsPerConnection: 10
+    outlierDetection:
+      # 3 errores 5xx consecutivos -> expulsa la instancia 30s.
+      consecutive5xxErrors: 3
+      interval: 10s
+      baseEjectionTime: 30s
+      maxEjectionPercent: 50

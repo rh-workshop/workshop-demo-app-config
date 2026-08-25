@@ -1,0 +1,33 @@
+# AuthPolicy del servicio canary: exige JWT valido, igual que el demo.
+#
+# Sin AuthPolicy propia, el HTTPRoute cae en el deny-by-default del Gateway
+# (shared-gateway-default) y responde 401. Cada servicio expuesto lleva la suya:
+# es el patron deny-by-default + allow-por-servicio (buena practica Zero Trust).
+# El issuerUrl (host de Keycloak + realm) se parchea por overlay.
+apiVersion: kuadrant.io/v1
+kind: AuthPolicy
+metadata:
+  name: canary-service
+spec:
+  targetRef:
+    group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    name: canary-service
+  rules:
+    authentication:
+      token-valido:
+        credentials:
+          authorizationHeader:
+            prefix: Bearer
+        jwt:
+          issuerUrl: https://CHANGE_ME_KEYCLOAK_HOST/realms/workshop
+    response:
+      success:
+        headers:
+          x-identidad:
+            json:
+              properties:
+                cliente:
+                  selector: auth.identity.azp
+                sujeto:
+                  selector: auth.identity.sub

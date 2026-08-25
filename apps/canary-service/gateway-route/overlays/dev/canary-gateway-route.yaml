@@ -1,0 +1,7 @@
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: canary-gateway
+  namespace: platform-gateway
+spec:
+  host: canary-dev.apps.cluster-pvsbw.dyn.redhatworkshops.io

@@ -1,0 +1,19 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: circuit-breaker-demo-dev
+resources:
+  - ../../base
+  - namespace.yaml
+patches:
+  - path: circuit-breaker-service-httproute.yaml
+    target:
+      kind: HTTPRoute
+      name: circuit-breaker-service
+  - path: circuit-breaker-service-authpolicy.yaml
+    target:
+      kind: AuthPolicy
+      name: circuit-breaker-service
+labels:
+  - pairs:
+      app.kubernetes.io/part-of: workshop-circuit-breaker
+      workshop.redhat.com/environment: dev

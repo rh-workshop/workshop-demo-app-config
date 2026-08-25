@@ -1,0 +1,19 @@
+# AuthPolicy del circuit-breaker-service: exige JWT valido (deny-by-default del
+# gateway + allow por servicio). El issuer se parchea por overlay.
+apiVersion: kuadrant.io/v1
+kind: AuthPolicy
+metadata:
+  name: circuit-breaker-service
+spec:
+  targetRef:
+    group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    name: circuit-breaker-service
+  rules:
+    authentication:
+      token-valido:
+        credentials:
+          authorizationHeader:
+            prefix: Bearer
+        jwt:
+          issuerUrl: https://CHANGE_ME_KEYCLOAK_HOST/realms/workshop

@@ -1,0 +1,19 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: canary-demo-dev
+resources:
+  - ../../base
+  - namespace.yaml
+patches:
+  - path: canary-service-httproute.yaml
+    target:
+      kind: HTTPRoute
+      name: canary-service
+  - path: canary-service-authpolicy.yaml
+    target:
+      kind: AuthPolicy
+      name: canary-service
+labels:
+  - pairs:
+      app.kubernetes.io/part-of: workshop-canary
+      workshop.redhat.com/environment: dev
