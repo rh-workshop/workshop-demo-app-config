@@ -1,0 +1,27 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: rollout-demo-dev
+resources:
+  - ../../base
+  - namespace.yaml
+patches:
+  - path: rollout-service-httproute.yaml
+    target:
+      kind: HTTPRoute
+      name: rollout-service
+  - path: rollout-service-authpolicy.yaml
+    target:
+      kind: AuthPolicy
+      name: rollout-service
+
+# La base deja un placeholder y aquí se resuelve la imagen real: es el punto
+# donde el pipeline de CI escribe el digest recién construido.
+images:
+  - name: app-workshop
+    newName: image-registry.openshift-image-registry.svc:5000/workshop-demo-dev/app-workshop
+    newTag: "1.0.0"
+
+labels:
+  - pairs:
+      app.kubernetes.io/part-of: workshop-rollouts
+      workshop.redhat.com/environment: dev

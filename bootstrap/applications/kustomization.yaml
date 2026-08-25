@@ -16,3 +16,7 @@ resources:
   - circuit-breaker-service-dev-application.yaml
   - circuit-breaker-gateway-route-dev-application.yaml
   - circuit-breaker-image-puller-application.yaml
+  - rollouts-application.yaml
+  - rollout-service-dev-application.yaml
+  - rollout-gateway-route-dev-application.yaml
+  - rollout-image-puller-application.yaml

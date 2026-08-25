@@ -39,6 +39,11 @@ spec:
       namespace: canary-demo-dev
     - server: https://kubernetes.default.svc
       namespace: circuit-breaker-demo-dev
+    - server: https://kubernetes.default.svc
+      namespace: rollout-demo-dev
+    # El RolloutManager (controlador de Argo Rollouts) se instala junto a Argo CD.
+    - server: https://kubernetes.default.svc
+      namespace: openshift-gitops
 
   # El proyecto necesita crear recursos de ámbito de cluster (Namespace) y las
   # políticas de Connectivity Link.

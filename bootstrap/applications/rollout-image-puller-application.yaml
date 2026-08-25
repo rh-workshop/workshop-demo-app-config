@@ -1,0 +1,23 @@
+# Onda 1 — el permiso de descarga de imagen se concede en "workshop-demo-dev"
+# (el namespace dueño del ImageStream), no donde corren los pods del Rollout,
+# por eso es una Application aparte con ese destino.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: rollout-image-puller-dev
+  namespace: openshift-gitops
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  project: workshop-platform
+  source:
+    repoURL: https://github.com/rh-workshop/workshop-demo-app-config.git
+    targetRevision: main
+    path: apps/rollout-service/image-puller/base
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: workshop-demo-dev
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
