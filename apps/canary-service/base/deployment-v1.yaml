@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - name: app
-          image: demo-service:latest
+          image: workshop-demo-app:latest
           ports:
             - containerPort: 8080
           env:

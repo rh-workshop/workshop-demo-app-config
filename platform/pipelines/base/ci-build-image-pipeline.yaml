@@ -64,7 +64,7 @@ spec:
             sed -i -E "s|^( *)(newTag|digest):.*|\1digest: $(tasks.build-and-publish-image.results.IMAGE_DIGEST)|" kustomization.yaml
             # Sin cambios (mismo digest) no hay nada que promocionar: se sale con éxito.
             git diff --quiet && echo "El overlay ya apunta a este digest; no se promociona nada." && exit 0
-            git commit -am "ci: promociona demo-service al digest recien construido"
+            git commit -am "ci: promociona la imagen al digest recien construido"
             # git-clone deja el repo en detached HEAD: hay que calificar la rama destino.
             git push origin HEAD:$(params.config-revision)
       workspaces:

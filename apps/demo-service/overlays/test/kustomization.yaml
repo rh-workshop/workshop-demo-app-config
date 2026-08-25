@@ -10,8 +10,8 @@ resources:
   - demo-service-httproute.yaml
 
 images:
-  - name: demo-service
-    newName: image-registry.openshift-image-registry.svc:5000/workshop-demo-test/demo-service
+  - name: workshop-demo-app
+    newName: image-registry.openshift-image-registry.svc:5000/workshop-demo-test/workshop-demo-app
     newTag: "1.0.0"
 
 patches:

@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
         - name: demo-service
-          image: demo-service:latest
+          image: workshop-demo-app:latest
           imagePullPolicy: Always
           ports:
             - name: http
