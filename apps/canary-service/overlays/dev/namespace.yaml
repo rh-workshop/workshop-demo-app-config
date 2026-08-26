@@ -6,5 +6,7 @@ kind: Namespace
 metadata:
   name: canary-demo-dev
   labels:
+    # Cede el namespace a la instancia central de Argo CD (RBAC del operador GitOps).
+    argocd.argoproj.io/managed-by: openshift-gitops
     shared-gateway-access: "true"
     istio-discovery: enabled
