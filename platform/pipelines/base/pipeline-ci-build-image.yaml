@@ -53,8 +53,12 @@ spec:
         # Verificación TLS activa: el pod de buildah confía en la CA del registro interno (validado en vivo).
         - {name: TLS_VERIFY, value: "true"}
         # El Containerfile del monorepo elige el binario con ARG APP: aquí se le pasa tal cual.
+        # GIT_COMMIT viaja SIEMPRE: el Containerfile lo estampa como etiqueta OCI
+        # org.opencontainers.image.revision, y como el monorepo es un único módulo Go ese
+        # commit identifica también la versión exacta del código común (internal/) que
+        # lleva el binario — así se sabe qué versión corre en cada imagen desplegada.
         - name: BUILD_ARGS
-          value: ["$(params.build-args[*])"]
+          value: ["$(params.build-args[*])", "GIT_COMMIT=$(tasks.clone-source-code.results.COMMIT)"]
       workspaces: [{name: source, workspace: source}]
 
     - name: clone-config-repo

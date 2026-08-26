@@ -4,6 +4,12 @@
 # "platform/pipelines/runs/" (junto al pipeline) y no lo gestiona Argo CD. Se crea con "oc create" (no "oc apply"),
 # porque cada ejecución necesita un nombre distinto; de ahí "generateName".
 #
+# REGLA DEL MONOREPO: si el cambio toca el código común (internal/ de la raíz),
+# afecta a TODAS las apps — hay que lanzar también el run de api-service, o la
+# otra imagen queda construida con la versión antigua de lo común. La etiqueta
+# OCI org.opencontainers.image.revision de cada imagen dice con qué commit se
+# construyó ("oc image info <imagen>").
+#
 #   oc create -f platform/pipelines/runs/pipelinerun-ci-build-image.yaml -n workshop-demo-dev
 apiVersion: tekton.dev/v1
 kind: PipelineRun
