@@ -14,7 +14,7 @@ resources:
 images:
   - name: app-workshop
     newName: image-registry.openshift-image-registry.svc:5000/workshop-demo-dev/app-workshop
-    newTag: "1.0.0"
+    digest: sha256:481592ace018e946712a7f8767ef46278da30ab729b9240bfe12191f53624cd5
 
 # En desarrollo basta una réplica; los valores de configuración identifican
 # el entorno en la respuesta del servicio.
