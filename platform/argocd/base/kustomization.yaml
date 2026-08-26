@@ -5,6 +5,6 @@ kind: Kustomization
 namespace: openshift-gitops
 
 resources:
-  - argocd.yaml
+  - argocd-openshift-gitops-tuning.yaml
   - workshop-platform-appproject.yaml
-  - argocd-gateway-api-clusterrole.yaml
+  - clusterrole-argocd-gateway-api.yaml

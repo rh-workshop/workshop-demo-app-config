@@ -9,7 +9,7 @@ resources:
 
 # Sin este parche la AuthPolicy quedaría con el issuer marcador de la base y toda petición daría 401.
 patches:
-  - path: demo-service-authpolicy.yaml
+  - path: authpolicy-demo-service-jwt.yaml
     target:
       kind: AuthPolicy
       name: demo-service

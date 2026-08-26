@@ -26,7 +26,7 @@ comando contra el cluster.
 |---|---|
 | `bootstrap/` | La Application raíz (patrón *app of apps*) y las Applications que componen el workshop |
 | `platform/argocd/` | Configuración del propio Argo CD: el AppProject que acota qué puede desplegarse |
-| `platform/pipelines/` | Los dos pipelines de Tekton (CI y CD), la identidad que los ejecuta, y en `ejecuciones/` los PipelineRun de ejemplo (se lanzan a mano, Argo no los toca) |
+| `platform/pipelines/` | Los dos pipelines de Tekton (CI y CD), la identidad que los ejecuta, y en `runs/` los PipelineRun de ejemplo (se lanzan a mano, Argo no los toca) |
 | `apps/demo-service/` | Deployment, Service y ConfigMap de la aplicación, con overlays `dev` y `test` |
 | `apps/canary-service/` | Despliegue canary: dos versiones con reparto de tráfico por pesos en la HTTPRoute |
 | `apps/bluegreen-service/` | Despliegue blue-green: dos versiones con conmutación total de tráfico |
@@ -54,7 +54,7 @@ La Application raíz es el **único** recurso que se aplica a mano. A partir de
 ella, Argo CD despliega el resto:
 
 ```bash
-oc apply -f bootstrap/root-application.yaml
+oc apply -f bootstrap/application-root-app-of-apps.yaml
 ```
 
 Las Applications hijas se ordenan con `argocd.argoproj.io/sync-wave`, porque el
@@ -80,7 +80,7 @@ El flujo está partido en dos pipelines, cada uno con una responsabilidad clara:
 Cada uno se lanza con su PipelineRun de ejemplo:
 
 ```bash
-oc create -f platform/pipelines/runs/ci-build-image-pipelinerun.yaml -n workshop-demo-dev
+oc create -f platform/pipelines/runs/pipelinerun-ci-build-image.yaml -n workshop-demo-dev
 ```
 
 En este entorno la imagen se publica en el **registro interno de OpenShift**
@@ -137,9 +137,37 @@ done; echo
 
 ## Convenciones
 
-- Los manifiestos se nombran `<descriptor>-<kind>.yaml`, de modo que el nombre
-  del archivo delate el tipo de recurso. El descriptor es el **nombre del
-  recurso** (`canary-service-v1-deployment.yaml` contiene el Deployment
-  `canary-service-v1`).
+- Los manifiestos se nombran `<kind>-<descriptor>.yaml`: el **kind en minúscula
+  va primero** (al listar una carpeta los archivos quedan agrupados por tipo) y
+  después un **descriptor que explica qué hace** el recurso en el workshop, no
+  solo cómo se llama. `kustomization.yaml` nunca se renombra, y un archivo
+  multi-documento se nombra por su recurso principal. Los nombres de archivo van
+  en inglés kebab-case; el `metadata.name` del recurso NO cambia con el archivo.
+
+  | Kind | Prefijo de archivo |
+  |------|--------------------|
+  | Deployment | `deployment-` |
+  | Service | `service-` |
+  | ConfigMap | `configmap-` |
+  | Namespace | `namespace-` |
+  | HTTPRoute | `httproute-` |
+  | Route (OpenShift) | `route-` |
+  | AuthPolicy | `authpolicy-` |
+  | RateLimitPolicy | `ratelimitpolicy-` |
+  | DestinationRule | `destinationrule-` |
+  | RoleBinding / ClusterRole | `rolebinding-` / `clusterrole-` |
+  | ServiceAccount | `serviceaccount-` |
+  | Pipeline / PipelineRun | `pipeline-` / `pipelinerun-` |
+  | Application (Argo CD) | `application-` |
+  | ArgoCD (CR del operador) | `argocd-` |
+  | AppProject | `appproject-` (histórico: `workshop-platform-appproject.yaml`) |
+
+  Ejemplos:
+  - `httproute-canary-weighted-split.yaml` — HTTPRoute que reparte el tráfico
+    90/10 entre v1 y v2 por peso.
+  - `deployment-bluegreen-green-standby.yaml` — Deployment de la versión green,
+    desplegada en reserva a la espera de la conmutación.
+  - `rolebinding-image-pull-cross-namespace.yaml` — RoleBinding que concede
+    `system:image-puller` para descargar la imagen desde otro namespace.
 - **Ningún secreto en Git.** Las credenciales se referencian por el nombre del
   Secret; su valor se crea en el cluster o lo sincroniza un gestor de secretos.

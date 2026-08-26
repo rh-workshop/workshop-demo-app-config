@@ -3,7 +3,7 @@ kind: Kustomization
 resources:
   - ../../base
 patches:
-  - path: cb-gateway-route.yaml
+  - path: route-circuit-breaker-gateway-passthrough.yaml
     target:
       kind: Route
       name: cb-gateway

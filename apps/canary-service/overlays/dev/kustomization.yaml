@@ -3,13 +3,13 @@ kind: Kustomization
 namespace: canary-demo-dev
 resources:
   - ../../base
-  - namespace.yaml
+  - namespace-canary-demo-dev.yaml
 patches:
-  - path: canary-service-httproute.yaml
+  - path: httproute-canary-weighted-split.yaml
     target:
       kind: HTTPRoute
       name: canary-service
-  - path: canary-service-authpolicy.yaml
+  - path: authpolicy-canary-jwt.yaml
     target:
       kind: AuthPolicy
       name: canary-service

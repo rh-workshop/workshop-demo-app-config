@@ -1,10 +1,10 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - service1-frontend-deployment.yaml
-  - service2-backend-deployment.yaml
-  - service1-frontend-service.yaml
-  - service2-backend-service.yaml
-  - circuit-breaker-destinationrule.yaml
-  - circuit-breaker-service-httproute.yaml
-  - circuit-breaker-service-authpolicy.yaml
+  - deployment-service1-frontend-caller.yaml
+  - deployment-service2-backend-target.yaml
+  - service-service1-frontend.yaml
+  - service-service2-backend.yaml
+  - destinationrule-circuit-breaker.yaml
+  - httproute-circuit-breaker-frontend.yaml
+  - authpolicy-circuit-breaker-jwt.yaml

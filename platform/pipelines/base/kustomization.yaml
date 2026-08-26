@@ -3,8 +3,8 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
 resources:
-  - builder-serviceaccount.yaml
-  - builder-rolebinding.yaml
-  - builder-scc-rolebinding.yaml
-  - ci-build-image-pipeline.yaml
-  - cd-deploy-application-pipeline.yaml
+  - serviceaccount-builder.yaml
+  - rolebinding-builder-push-images.yaml
+  - rolebinding-builder-pipelines-scc.yaml
+  - pipeline-ci-build-image.yaml
+  - pipeline-cd-deploy-application.yaml

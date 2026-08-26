@@ -1,9 +1,9 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - canary-service-v1-deployment.yaml
-  - canary-service-v2-deployment.yaml
-  - canary-service-v1-service.yaml
-  - canary-service-v2-service.yaml
-  - canary-service-httproute.yaml
-  - canary-service-authpolicy.yaml
+  - deployment-canary-v1-stable.yaml
+  - deployment-canary-v2-candidate.yaml
+  - service-canary-v1.yaml
+  - service-canary-v2.yaml
+  - httproute-canary-weighted-split.yaml
+  - authpolicy-canary-jwt.yaml

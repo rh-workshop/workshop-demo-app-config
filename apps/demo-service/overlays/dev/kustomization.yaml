@@ -6,8 +6,8 @@ namespace: workshop-demo-dev
 
 resources:
 - ../../base
-- namespace.yaml
-- demo-service-httproute.yaml
+- namespace-workshop-demo-dev.yaml
+- httproute-demo-service.yaml
 
 # La imagen se resuelve contra el registro interno de OpenShift. En una
 # plataforma real este valor apuntaría al registro corporativo (Quay).
@@ -19,7 +19,7 @@ images:
 # En desarrollo basta una réplica; los valores de configuración identifican
 # el entorno en la respuesta del servicio.
 patches:
-- path: demo-service-configmap.yaml
+- path: configmap-demo-service-env-config.yaml
   target:
     kind: ConfigMap
     name: demo-service-config

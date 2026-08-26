@@ -3,7 +3,7 @@ kind: Kustomization
 resources:
   - ../../base
 patches:
-  - path: bluegreen-gateway-route.yaml
+  - path: route-bluegreen-gateway-passthrough.yaml
     target:
       kind: Route
       name: bluegreen-gateway

@@ -3,13 +3,13 @@ kind: Kustomization
 namespace: circuit-breaker-demo-dev
 resources:
   - ../../base
-  - namespace.yaml
+  - namespace-circuit-breaker-demo-dev.yaml
 patches:
-  - path: circuit-breaker-service-httproute.yaml
+  - path: httproute-circuit-breaker-frontend.yaml
     target:
       kind: HTTPRoute
       name: circuit-breaker-service
-  - path: circuit-breaker-service-authpolicy.yaml
+  - path: authpolicy-circuit-breaker-jwt.yaml
     target:
       kind: AuthPolicy
       name: circuit-breaker-service

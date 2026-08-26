@@ -3,13 +3,13 @@ kind: Kustomization
 namespace: bluegreen-demo-dev
 resources:
   - ../../base
-  - namespace.yaml
+  - namespace-bluegreen-demo-dev.yaml
 patches:
-  - path: bluegreen-service-httproute.yaml
+  - path: httproute-bluegreen-traffic-switch.yaml
     target:
       kind: HTTPRoute
       name: bluegreen-service
-  - path: bluegreen-service-authpolicy.yaml
+  - path: authpolicy-bluegreen-jwt.yaml
     target:
       kind: AuthPolicy
       name: bluegreen-service

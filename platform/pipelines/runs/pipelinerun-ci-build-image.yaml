@@ -4,7 +4,7 @@
 # "platform/pipelines/runs/" (junto al pipeline) y no lo gestiona Argo CD. Se crea con "oc create" (no "oc apply"),
 # porque cada ejecución necesita un nombre distinto; de ahí "generateName".
 #
-#   oc create -f platform/pipelines/runs/ci-build-image-pipelinerun.yaml -n workshop-demo-dev
+#   oc create -f platform/pipelines/runs/pipelinerun-ci-build-image.yaml -n workshop-demo-dev
 apiVersion: tekton.dev/v1
 kind: PipelineRun
 metadata:

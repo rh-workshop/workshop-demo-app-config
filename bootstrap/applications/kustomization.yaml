@@ -5,16 +5,16 @@ kind: Kustomization
 namespace: openshift-gitops
 
 resources:
-  - argocd-application.yaml
-  - demo-service-dev-application.yaml
-  - pipelines-application.yaml
-  - policies-dev-application.yaml
-  - canary-service-dev-application.yaml
-  - canary-gateway-route-dev-application.yaml
-  - canary-image-puller-application.yaml
-  - circuit-breaker-service-dev-application.yaml
-  - circuit-breaker-gateway-route-dev-application.yaml
-  - circuit-breaker-image-puller-application.yaml
-  - bluegreen-service-dev-application.yaml
-  - bluegreen-gateway-route-dev-application.yaml
-  - bluegreen-image-puller-dev-application.yaml
+  - application-platform-argocd.yaml
+  - application-demo-service-dev.yaml
+  - application-platform-pipelines.yaml
+  - application-policies-dev.yaml
+  - application-canary-service-dev.yaml
+  - application-canary-gateway-route-dev.yaml
+  - application-canary-image-puller-dev.yaml
+  - application-circuit-breaker-service-dev.yaml
+  - application-circuit-breaker-gateway-route-dev.yaml
+  - application-circuit-breaker-image-puller-dev.yaml
+  - application-bluegreen-service-dev.yaml
+  - application-bluegreen-gateway-route-dev.yaml
+  - application-bluegreen-image-puller-dev.yaml

@@ -6,8 +6,8 @@ namespace: workshop-demo-test
 
 resources:
   - ../../base
-  - namespace.yaml
-  - demo-service-httproute.yaml
+  - namespace-workshop-demo-test.yaml
+  - httproute-demo-service.yaml
 
 images:
   - name: app-workshop
@@ -15,13 +15,13 @@ images:
     newTag: "1.0.0"
 
 patches:
-  - path: demo-service-configmap.yaml
+  - path: configmap-demo-service-env-config.yaml
     target:
       kind: ConfigMap
       name: demo-service-config
   # A diferencia de desarrollo, pruebas ejecuta dos réplicas: el mismo "qué"
   # de la base con un "cuánto" distinto, que es el papel de un overlay.
-  - path: demo-service-deployment.yaml
+  - path: deployment-demo-service-two-replicas.yaml
     target:
       kind: Deployment
       name: demo-service

@@ -6,7 +6,7 @@
 # nuevo al workshop consiste en añadir un archivo a ese directorio y confirmarlo
 # en Git; no vuelve a hacer falta ningún "oc apply".
 #
-#   oc apply -f bootstrap/root-application.yaml
+#   oc apply -f bootstrap/application-root-app-of-apps.yaml
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:

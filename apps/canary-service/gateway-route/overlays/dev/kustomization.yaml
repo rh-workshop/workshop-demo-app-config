@@ -3,7 +3,7 @@ kind: Kustomization
 resources:
   - ../../base
 patches:
-  - path: canary-gateway-route.yaml
+  - path: route-canary-gateway-passthrough.yaml
     target:
       kind: Route
       name: canary-gateway
