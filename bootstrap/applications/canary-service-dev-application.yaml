@@ -15,9 +15,20 @@ spec:
   destination:
     server: https://kubernetes.default.svc
     namespace: canary-demo-dev
+  # El dominio real del cluster se fija en vivo (dia 0) y Argo lo respeta: el repo queda generico.
+  ignoreDifferences:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      jsonPointers:
+        - /spec/hostnames
+    - group: kuadrant.io
+      kind: AuthPolicy
+      jqPathExpressions:
+        - .spec.rules.authentication[]?.jwt.issuerUrl
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
     syncOptions:
+      - RespectIgnoreDifferences=true
       - CreateNamespace=true

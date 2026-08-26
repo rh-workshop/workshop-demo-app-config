@@ -17,7 +17,15 @@ spec:
   destination:
     server: https://kubernetes.default.svc
     namespace: workshop-demo-dev
+  # El dominio real del cluster se fija en vivo (dia 0) y Argo lo respeta: el repo queda generico.
+  ignoreDifferences:
+    - group: kuadrant.io
+      kind: AuthPolicy
+      jqPathExpressions:
+        - .spec.rules.authentication[]?.jwt.issuerUrl
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
+    syncOptions:
+      - RespectIgnoreDifferences=true

@@ -16,7 +16,15 @@ spec:
   destination:
     server: https://kubernetes.default.svc
     namespace: platform-gateway
+  # El dominio real del cluster se fija en vivo (dia 0) y Argo lo respeta: el repo queda generico.
+  ignoreDifferences:
+    - group: route.openshift.io
+      kind: Route
+      jsonPointers:
+        - /spec/host
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
+    syncOptions:
+      - RespectIgnoreDifferences=true
