@@ -31,7 +31,7 @@ patches:
 images:
 - digest: sha256:6cd4388e752b71e1fedd6c625661e9658779af9acdc5587cc43ad98354da61ef
   name: api-service
-  newName: image-registry.openshift-image-registry.svc:5000/workshop-demo-dev/api-service
+  newName: company-quay-quay-quay-enterprise.apps.cluster-qthlq.dyn.redhatworkshops.io/company/api-service
 
 labels:
 - pairs:

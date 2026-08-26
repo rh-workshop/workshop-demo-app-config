@@ -18,10 +18,15 @@ patches:
 # La base deja un placeholder y aquí se resuelve la imagen real: es el punto
 # donde el pipeline de CI escribe el digest recién construido. Los tres servicios
 # comparten esta imagen: v1 y v2 solo cambian el APP_VERSION que anuncian.
+# Los tres servicios de demostración de tráfico comparten el binario de
+# demo-service a propósito: lo que se demuestra es el patrón de enrutado
+# (canary, blue-green, corte), no aplicaciones distintas. EN PRODUCCIÓN cada
+# servicio lleva su PROPIO repositorio: sin eso no hay versionado ni escaneo
+# independientes, y una vulnerabilidad en uno mancha a todos.
 images:
   - name: app-workshop
-    newName: image-registry.openshift-image-registry.svc:5000/workshop-demo-dev/app-workshop
-    digest: sha256:3382a7bb24fc5a045156b94bed94f3a814d314bad520522b42f2d0eebdf613d0
+    newName: company-quay-quay-quay-enterprise.apps.cluster-qthlq.dyn.redhatworkshops.io/company/demo-service
+    digest: sha256:01aa60c7772872bf76e5b03bde06a6c4755e331d6b85d0502a15859a81c11027
 
 labels:
   - pairs:

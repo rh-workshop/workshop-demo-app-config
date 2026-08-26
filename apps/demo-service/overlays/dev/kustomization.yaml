@@ -14,7 +14,7 @@ resources:
 images:
 - digest: sha256:01aa60c7772872bf76e5b03bde06a6c4755e331d6b85d0502a15859a81c11027
   name: app-workshop
-  newName: image-registry.openshift-image-registry.svc:5000/workshop-demo-dev/app-workshop
+  newName: company-quay-quay-quay-enterprise.apps.cluster-qthlq.dyn.redhatworkshops.io/company/demo-service
 
 # En desarrollo basta una réplica; los valores de configuración identifican
 # el entorno en la respuesta del servicio.
