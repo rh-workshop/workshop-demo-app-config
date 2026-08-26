@@ -1,0 +1,21 @@
+# Onda 1 — parte del escenario blue-green.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: bluegreen-image-puller-dev
+  namespace: openshift-gitops
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  project: workshop-platform
+  source:
+    repoURL: https://github.com/rh-workshop/workshop-demo-app-config.git
+    targetRevision: main
+    path: apps/bluegreen-service/image-puller/base
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: workshop-demo-dev
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

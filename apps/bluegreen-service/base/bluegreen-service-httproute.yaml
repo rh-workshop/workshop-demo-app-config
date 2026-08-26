@@ -1,0 +1,45 @@
+# Blue-green con Connectivity Link: UN HTTPRoute con dos reglas.
+#
+# Diferencia con el canary (apps/canary-service): allí los pesos se reparten
+# (90/10) y las dos versiones atienden a la vez. Aquí el peso es 100/0, así que
+# TODO el tráfico va a una sola versión y la otra queda desplegada en reserva.
+# Conmutar es invertir los pesos en Git: 100/0 -> 0/100. La vuelta atrás es
+# invertirlos de nuevo, sin esperar a que se construya ni se despliegue nada.
+#
+# La primera regla permite PROBAR la versión en reserva antes de conmutar: quien
+# envíe la cabecera "x-version: green" llega a green aunque el tráfico normal
+# siga yendo a blue. Es la prueba en producción sin exponerla a los usuarios.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: bluegreen-service
+spec:
+  parentRefs:
+    - name: shared-gateway
+      namespace: platform-gateway
+  hostnames:
+    - bluegreen-dev.apps.CHANGE_ME_DOMINIO
+  rules:
+    # Regla de prueba dirigida: se evalúa ANTES que la del tráfico normal.
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+          headers:
+            - name: x-version
+              value: green
+      backendRefs:
+        - name: bluegreen-service-green
+          port: 8080
+    # Tráfico normal: el 100% a la versión activa.
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: bluegreen-service-blue
+          port: 8080
+          weight: 100
+        - name: bluegreen-service-green
+          port: 8080
+          weight: 0

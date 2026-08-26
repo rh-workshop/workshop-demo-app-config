@@ -1,0 +1,21 @@
+# Los pods de blue-green corren en "bluegreen-demo-dev" pero la imagen vive en el
+# ImageStream de "workshop-demo-dev" (donde la publica el pipeline de CI).
+# Sin este permiso el pod no puede descargarla y queda en ImagePullBackOff:
+# tirar de un registro interno de OTRO namespace exige "system:image-puller".
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: bluegreen-demo-dev-image-puller
+  # El permiso se concede en el namespace DUEÑO de la imagen, no en el del pod.
+  namespace: workshop-demo-dev
+  labels:
+    app.kubernetes.io/part-of: workshop-bluegreen
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:image-puller
+subjects:
+  # Todas las cuentas de servicio del namespace de canary.
+  - apiGroup: rbac.authorization.k8s.io
+    kind: Group
+    name: system:serviceaccounts:bluegreen-demo-dev

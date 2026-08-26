@@ -1,8 +1,0 @@
-apiVersion: route.openshift.io/v1
-kind: Route
-metadata:
-  name: rollout-gateway
-  namespace: platform-gateway
-spec:
-  # Sustituir por el dominio del cluster de DESARROLLO: apps.<cluster-dev>.<dominio-base>
-  host: rollout-dev.apps.cluster-dev.ejemplo.com
