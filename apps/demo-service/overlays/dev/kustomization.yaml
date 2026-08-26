@@ -19,6 +19,11 @@ images:
 # En desarrollo basta una réplica; los valores de configuración identifican
 # el entorno en la respuesta del servicio.
 patches:
+# El issuer de Keycloak es propio de cada entorno.
+- path: authpolicy-demo-service-jwt.yaml
+  target:
+    kind: AuthPolicy
+    name: demo-service
 - path: configmap-demo-service-env-config.yaml
   target:
     kind: ConfigMap

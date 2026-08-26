@@ -7,6 +7,8 @@ resources:
   - deployment-demo-service.yaml
   - service-demo-service.yaml
   - configmap-demo-service-env-config.yaml
+  - authpolicy-demo-service-jwt.yaml
+  - ratelimitpolicy-demo-service-per-client.yaml
 
 # Etiquetas comunes a todos los recursos de la base.
 labels:
