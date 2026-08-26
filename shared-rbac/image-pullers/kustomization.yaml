@@ -5,5 +5,4 @@ kind: Kustomization
 resources:
   - rolebinding-api-image-pull-cross-namespace.yaml
   - rolebinding-bluegreen-image-pull-cross-namespace.yaml
-  - rolebinding-canary-image-pull-cross-namespace.yaml
   - rolebinding-circuit-breaker-image-pull-cross-namespace.yaml
