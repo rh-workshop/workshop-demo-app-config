@@ -5,21 +5,21 @@ kind: Kustomization
 namespace: workshop-demo-dev
 
 resources:
-  - ../../base
-  - namespace.yaml
-  - demo-service-httproute.yaml
+- ../../base
+- namespace.yaml
+- demo-service-httproute.yaml
 
 # La imagen se resuelve contra el registro interno de OpenShift. En una
 # plataforma real este valor apuntaría al registro corporativo (Quay).
 images:
-  - name: app-workshop
-    newName: image-registry.openshift-image-registry.svc:5000/workshop-demo-dev/app-workshop
-    digest: sha256:481592ace018e946712a7f8767ef46278da30ab729b9240bfe12191f53624cd5
+- digest: sha256:3382a7bb24fc5a045156b94bed94f3a814d314bad520522b42f2d0eebdf613d0
+  name: app-workshop
+  newName: image-registry.openshift-image-registry.svc:5000/workshop-demo-dev/app-workshop
 
 # En desarrollo basta una réplica; los valores de configuración identifican
 # el entorno en la respuesta del servicio.
 patches:
-  - path: demo-service-configmap.yaml
-    target:
-      kind: ConfigMap
-      name: demo-service-config
+- path: demo-service-configmap.yaml
+  target:
+    kind: ConfigMap
+    name: demo-service-config
