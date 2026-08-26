@@ -15,6 +15,10 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: workshop-root
+  labels:
+    # Distingue de un vistazo qué es infraestructura y qué es aplicación.
+    workshop.redhat.com/layer: gitops
+    workshop.redhat.com/component: root-app-of-apps
   namespace: openshift-gitops
   labels:
     app.kubernetes.io/part-of: workshop-gitops

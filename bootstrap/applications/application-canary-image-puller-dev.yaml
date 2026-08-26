@@ -6,6 +6,11 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: canary-image-puller-dev
+  labels:
+    # Distingue de un vistazo qué es infraestructura y qué es aplicación.
+    workshop.redhat.com/layer: application
+    workshop.redhat.com/component: canary
+    workshop.redhat.com/environment: dev
   namespace: openshift-gitops
   annotations:
     argocd.argoproj.io/sync-wave: "1"
