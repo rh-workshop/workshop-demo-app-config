@@ -12,7 +12,7 @@ resources:
 # La imagen se resuelve contra el registro interno de OpenShift. En una
 # plataforma real este valor apuntaría al registro corporativo (Quay).
 images:
-- digest: sha256:65bf62e714d7e185e2cbb5c92cf3394f7cad85382a85f3c49d8ad978f7023dd7
+- digest: sha256:01aa60c7772872bf76e5b03bde06a6c4755e331d6b85d0502a15859a81c11027
   name: app-workshop
   newName: image-registry.openshift-image-registry.svc:5000/workshop-demo-dev/app-workshop
 
