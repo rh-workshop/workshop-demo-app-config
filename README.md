@@ -25,7 +25,6 @@ comando contra el cluster.
 | Ruta | Contenido |
 |---|---|
 | `bootstrap/` | La Application raíz (patrón *app of apps*) y las Applications que componen el workshop |
-| `platform/argocd/` | Configuración del propio Argo CD: el AppProject que acota qué puede desplegarse |
 | `platform/pipelines/` | Los dos pipelines de Tekton (CI y CD), la identidad que los ejecuta, y en `runs/` los PipelineRun de ejemplo (se lanzan a mano, Argo no los toca) |
 | `apps/demo-service/` | Deployment, Service y ConfigMap de la aplicación, con overlays `dev` y `test` |
 | `apps/canary-service/` | Despliegue canary: dos versiones con reparto de tráfico por pesos en la HTTPRoute |
@@ -36,8 +35,12 @@ comando contra el cluster.
 > La **plataforma** (el Gateway compartido, el CR de Kuadrant y sus políticas
 > transversales) NO vive aquí: su fuente de verdad es el repositorio
 > `workshop-demo-platform-config`. Este repositorio solo contiene lo que es de
-> los equipos de aplicación: las apps, sus políticas, los pipelines y el
-> AppProject de Argo CD.
+> los equipos de aplicación: las apps, sus políticas y los pipelines.
+>
+> La configuración del **propio Argo CD** (el CR `ArgoCD`, los AppProjects y el
+> RBAC del controller) tampoco vive aquí: la aplica el **bootstrap** del cluster
+> (`workshop-demo-platform-config/bootstrap/`), porque lo que Argo necesita para
+> existir no lo gestiona Argo.
 
 Cada servicio de `apps/` sigue el mismo patrón: `base/` + `overlays/<entorno>/`,
 más dos subárboles para los recursos que por necesidad técnica viven en **otro
@@ -50,20 +53,18 @@ Todos los directorios siguen el patrón **base + overlays** de Kustomize: la
 
 ## Instalación
 
-La Application raíz es el **único** recurso que se aplica a mano. A partir de
-ella, Argo CD despliega el resto:
-
-```bash
-oc apply -f bootstrap/application-root-app-of-apps.yaml
-```
+La Application raíz la aplica el **bootstrap del cluster** (el playbook de
+`workshop-demo-platform-config/bootstrap/ansible/`), después de crear los
+AppProjects y el CR `ArgoCD`. A partir de ella, Argo CD despliega el resto.
+El root corre en el AppProject `gitops-control`, con una whitelist mínima:
+solo puede crear Applications en el namespace de Argo.
 
 Las Applications hijas se ordenan con `argocd.argoproj.io/sync-wave`, porque el
 orden importa:
 
 | Onda | Componente | Motivo del orden |
 |---|---|---|
-| 0 | Configuración de Argo CD | El AppProject debe existir antes que las Applications que lo declaran |
-| 2 | Aplicaciones y pipelines | Necesitan el gateway compartido ya disponible (lo despliega `workshop-demo-platform-config`) |
+| 2 | Aplicaciones y pipelines | Necesitan el gateway compartido ya disponible (lo despliega `workshop-demo-platform-config`) y el AppProject `workshop-platform`, que crea el bootstrap |
 | 3 | Políticas | Se declaran sobre el HTTPRoute de la aplicación, que debe existir antes |
 
 ## Pipelines: CI y CD separados
@@ -159,8 +160,6 @@ done; echo
   | ServiceAccount | `serviceaccount-` |
   | Pipeline / PipelineRun | `pipeline-` / `pipelinerun-` |
   | Application (Argo CD) | `application-` |
-  | ArgoCD (CR del operador) | `argocd-` |
-  | AppProject | `appproject-` (histórico: `workshop-platform-appproject.yaml`) |
 
   Ejemplos:
   - `httproute-canary-weighted-split.yaml` — HTTPRoute que reparte el tráfico

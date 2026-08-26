@@ -1,8 +1,0 @@
-# Overlay de la configuración de Argo CD para el cluster del workshop.
-apiVersion: kustomize.config.k8s.io/v1beta1
-kind: Kustomization
-
-namespace: openshift-gitops
-
-resources:
-  - ../../base

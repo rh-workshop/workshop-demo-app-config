@@ -4,8 +4,10 @@ kind: Kustomization
 
 namespace: openshift-gitops
 
+# La configuración del propio Argo CD (CR ArgoCD, AppProjects, RBAC) NO está
+# aquí: la aplica el bootstrap de workshop-demo-platform-config, porque lo que
+# Argo necesita para existir no lo gestiona Argo.
 resources:
-  - application-platform-argocd.yaml
   - application-demo-service-dev.yaml
   - application-platform-pipelines.yaml
   - application-policies-dev.yaml

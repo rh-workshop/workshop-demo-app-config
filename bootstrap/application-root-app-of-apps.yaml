@@ -1,12 +1,16 @@
 # Application raíz — patrón "app of apps".
 #
-# Es el ÚNICO recurso que se aplica a mano en todo el flujo. A partir de aquí
-# gobierna Argo CD: esta Application no despliega cargas de trabajo, sino que
-# apunta al directorio que contiene las demás Applications. Añadir un componente
-# nuevo al workshop consiste en añadir un archivo a ese directorio y confirmarlo
-# en Git; no vuelve a hacer falta ningún "oc apply".
+# La aplica el BOOTSTRAP del cluster (workshop-demo-platform-config,
+# bootstrap/ansible/bootstrap.yml), después de crear los AppProjects y el CR
+# ArgoCD. A partir de aquí gobierna Argo CD: esta Application no despliega
+# cargas de trabajo, sino que apunta al directorio que contiene las demás
+# Applications. Añadir un componente nuevo al workshop consiste en añadir un
+# archivo a ese directorio y confirmarlo en Git; no vuelve a hacer falta ningún
+# "oc apply".
 #
-#   oc apply -f bootstrap/application-root-app-of-apps.yaml
+# Corre en el AppProject gitops-control (creado por el bootstrap): whitelist
+# mínima — solo puede crear Applications en el namespace de Argo, nunca
+# AppProjects ni recursos de cluster.
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -15,7 +19,7 @@ metadata:
   labels:
     app.kubernetes.io/part-of: workshop-gitops
 spec:
-  project: default
+  project: gitops-control
   source:
     repoURL: https://github.com/rh-workshop/workshop-demo-app-config.git
     targetRevision: main
