@@ -1,15 +1,16 @@
-# Onda 1 — el permiso de descarga de imagen se concede en "workshop-demo-dev"
-# (el namespace dueño del ImageStream), no donde corren los pods de la API, por
-# eso es una Application aparte con ese destino. Debe existir ANTES que el
-# Deployment de la onda 2 o el primer arranque queda en ImagePullBackOff.
+# Onda 1 — los permisos de descarga de imagen de TODOS los servicios.
+#
+# Van juntos en una sola Application porque comparten destino: el namespace
+# dueño del ImageStream (workshop-demo-dev), que no es donde corren los pods.
+# Tenerlos separados obligaba a una Application por RoleBinding, sin ganar nada.
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: api-image-puller-dev
+  name: image-pullers-dev
   labels:
     # Distingue de un vistazo qué es infraestructura y qué es aplicación.
     workshop.redhat.com/layer: application
-    workshop.redhat.com/component: api
+    workshop.redhat.com/component: image-pullers
     workshop.redhat.com/environment: dev
   namespace: openshift-gitops
   annotations:
@@ -19,7 +20,7 @@ spec:
   source:
     repoURL: https://github.com/rh-workshop/workshop-demo-app-config.git
     targetRevision: main
-    path: apps/api-service/image-puller/base
+    path: apps/image-pullers/base
   destination:
     server: https://kubernetes.default.svc
     namespace: workshop-demo-dev

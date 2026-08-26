@@ -13,13 +13,10 @@ resources:
   - application-policies-dev.yaml
   - application-canary-service-dev.yaml
   - application-canary-gateway-route-dev.yaml
-  - application-canary-image-puller-dev.yaml
   - application-circuit-breaker-service-dev.yaml
   - application-circuit-breaker-gateway-route-dev.yaml
-  - application-circuit-breaker-image-puller-dev.yaml
   - application-bluegreen-service-dev.yaml
   - application-bluegreen-gateway-route-dev.yaml
-  - application-bluegreen-image-puller-dev.yaml
   - application-api-service-dev.yaml
   - application-api-gateway-route-dev.yaml
-  - application-api-image-puller-dev.yaml
+  - application-image-pullers-dev.yaml
