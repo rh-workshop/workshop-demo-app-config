@@ -1,0 +1,34 @@
+# Onda 2 — API de negocio (rate limiting por ruta con Connectivity Link).
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: api-service-dev
+  namespace: openshift-gitops
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  project: workshop-platform
+  source:
+    repoURL: https://github.com/rh-workshop/workshop-demo-app-config.git
+    targetRevision: main
+    path: apps/api-service/overlays/dev
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: api-demo-dev
+  # El dominio real del cluster se fija en vivo (dia 0) y Argo lo respeta: el repo queda generico.
+  ignoreDifferences:
+    - group: gateway.networking.k8s.io
+      kind: HTTPRoute
+      jsonPointers:
+        - /spec/hostnames
+    - group: kuadrant.io
+      kind: AuthPolicy
+      jqPathExpressions:
+        - .spec.rules.authentication[]?.jwt.issuerUrl
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - RespectIgnoreDifferences=true
+      - CreateNamespace=true

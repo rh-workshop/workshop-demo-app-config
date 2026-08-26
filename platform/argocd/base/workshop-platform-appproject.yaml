@@ -41,6 +41,8 @@ spec:
       namespace: circuit-breaker-demo-dev
     - server: https://kubernetes.default.svc
       namespace: bluegreen-demo-dev
+    - server: https://kubernetes.default.svc
+      namespace: api-demo-dev
 
   # Recursos de ámbito de cluster: SOLO el Namespace que cada servicio declara.
   # ClusterRole/ClusterRoleBinding se retiran: los gestiona la app workshop-argocd

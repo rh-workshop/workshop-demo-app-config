@@ -1,0 +1,30 @@
+# Onda 1 — la Route passthrough de la API vive en platform-gateway (junto al
+# gateway), por eso es una Application aparte con ese destino.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: api-gateway-route-dev
+  namespace: openshift-gitops
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+spec:
+  project: workshop-platform
+  source:
+    repoURL: https://github.com/rh-workshop/workshop-demo-app-config.git
+    targetRevision: main
+    path: apps/api-service/gateway-route/overlays/dev
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: platform-gateway
+  # El dominio real del cluster se fija en vivo (dia 0) y Argo lo respeta: el repo queda generico.
+  ignoreDifferences:
+    - group: route.openshift.io
+      kind: Route
+      jsonPointers:
+        - /spec/host
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - RespectIgnoreDifferences=true

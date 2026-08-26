@@ -18,3 +18,6 @@ resources:
   - application-bluegreen-service-dev.yaml
   - application-bluegreen-gateway-route-dev.yaml
   - application-bluegreen-image-puller-dev.yaml
+  - application-api-service-dev.yaml
+  - application-api-gateway-route-dev.yaml
+  - application-api-image-puller-dev.yaml

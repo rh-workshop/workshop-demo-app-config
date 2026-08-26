@@ -1,0 +1,46 @@
+# AuthPolicy de la API de negocio: exige JWT válido, igual que el resto de
+# servicios expuestos (patrón deny-by-default + allow-por-servicio).
+#
+# Además de validar el token, PROPAGA la identidad en dos canales:
+#   · "headers": inyecta la cabecera x-identidad hacia el backend; la API la
+#     refleja en cada respuesta (es la prueba visible de la propagación).
+#   · "filters": publica la identidad en los metadatos dinámicos del gateway,
+#     el canal que lee la RateLimitPolicy. OJO: el filtro DEBE llamarse
+#     "identity" — el wasm-shim resuelve "auth.identity.clientid" con el nombre
+#     literal del filtro; con otro nombre el contador falla en silencio.
+# El issuerUrl (host de Keycloak + realm) se parchea por overlay.
+apiVersion: kuadrant.io/v1
+kind: AuthPolicy
+metadata:
+  name: api-service
+spec:
+  targetRef:
+    group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    name: api-service
+  rules:
+    authentication:
+      token-valido:
+        credentials:
+          authorizationHeader:
+            prefix: Bearer
+        jwt:
+          issuerUrl: https://CHANGE_ME_KEYCLOAK_HOST/realms/workshop
+    response:
+      success:
+        headers:
+          x-identidad:
+            json:
+              properties:
+                cliente:
+                  selector: auth.identity.azp
+                sujeto:
+                  selector: auth.identity.sub
+        filters:
+          identity:
+            json:
+              properties:
+                clientid:
+                  selector: auth.identity.azp
+                sub:
+                  selector: auth.identity.sub

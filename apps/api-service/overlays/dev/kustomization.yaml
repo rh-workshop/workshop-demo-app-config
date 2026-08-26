@@ -1,0 +1,36 @@
+# Overlay del entorno de desarrollo de la API de negocio.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: api-demo-dev
+
+resources:
+  - ../../base
+  - namespace-api-demo-dev.yaml
+
+patches:
+  - path: httproute-api-service.yaml
+    target:
+      kind: HTTPRoute
+      name: api-service
+  - path: authpolicy-api-service-jwt.yaml
+    target:
+      kind: AuthPolicy
+      name: api-service
+  - path: configmap-api-service-env-config.yaml
+    target:
+      kind: ConfigMap
+      name: api-service-config
+
+# La base deja un placeholder y aquí se resuelve la imagen real: es el punto
+# donde el pipeline de CI escribe el digest recién construido. La imagen vive
+# en el ImageStream de workshop-demo-dev (donde publica el pipeline), aunque
+# los pods corran en api-demo-dev: de ahí el RoleBinding image-puller.
+images:
+  - name: api-service
+    newName: image-registry.openshift-image-registry.svc:5000/workshop-demo-dev/api-service
+    newTag: "1.0.0"
+
+labels:
+  - pairs:
+      workshop.redhat.com/environment: dev
