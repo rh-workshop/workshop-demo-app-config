@@ -27,10 +27,23 @@ comando contra el cluster.
 | `bootstrap/` | La Application raíz (patrón *app of apps*) y las Applications que componen el workshop |
 | `platform/argocd/` | Configuración del propio Argo CD: el AppProject que acota qué puede desplegarse |
 | `platform/pipelines/` | Los dos pipelines de Tekton (CI y CD), la identidad que los ejecuta, y en `ejecuciones/` los PipelineRun de ejemplo (se lanzan a mano, Argo no los toca) |
-| `platform/connectivity-link/` | Custom Resource de Kuadrant, plano de control de Connectivity Link |
-| `platform/gateway/` | Gateway compartido, TLSPolicy y AuthPolicy por defecto |
 | `apps/demo-service/` | Deployment, Service y ConfigMap de la aplicación, con overlays `dev` y `test` |
+| `apps/canary-service/` | Despliegue canary: dos versiones con reparto de tráfico por pesos en la HTTPRoute |
+| `apps/bluegreen-service/` | Despliegue blue-green: dos versiones con conmutación total de tráfico |
+| `apps/circuit-breaker-service/` | Frontend y backend con DestinationRule de circuit breaker |
 | `policies/` | AuthPolicy y RateLimitPolicy del servicio |
+
+> La **plataforma** (el Gateway compartido, el CR de Kuadrant y sus políticas
+> transversales) NO vive aquí: su fuente de verdad es el repositorio
+> `workshop-demo-platform-config`. Este repositorio solo contiene lo que es de
+> los equipos de aplicación: las apps, sus políticas, los pipelines y el
+> AppProject de Argo CD.
+
+Cada servicio de `apps/` sigue el mismo patrón: `base/` + `overlays/<entorno>/`,
+más dos subárboles para los recursos que por necesidad técnica viven en **otro
+namespace**: `gateway-route/` (la Route de exposición, en `platform-gateway`) e
+`image-puller/` (el RoleBinding que permite tirar de la imagen desde el
+namespace donde se construye).
 
 Todos los directorios siguen el patrón **base + overlays** de Kustomize: la
 `base` declara el *qué* y cada overlay el *dónde* y el *cuánto*.
@@ -50,8 +63,7 @@ orden importa:
 | Onda | Componente | Motivo del orden |
 |---|---|---|
 | 0 | Configuración de Argo CD | El AppProject debe existir antes que las Applications que lo declaran |
-| 1 | Gateway compartido | Una ruta no puede adjuntarse a un gateway inexistente |
-| 2 | Aplicación y pipelines | Necesitan el gateway ya disponible |
+| 2 | Aplicaciones y pipelines | Necesitan el gateway compartido ya disponible (lo despliega `workshop-demo-platform-config`) |
 | 3 | Políticas | Se declaran sobre el HTTPRoute de la aplicación, que debe existir antes |
 
 ## Pipelines: CI y CD separados
@@ -126,8 +138,8 @@ done; echo
 ## Convenciones
 
 - Los manifiestos se nombran `<descriptor>-<kind>.yaml`, de modo que el nombre
-  del archivo delate el tipo de recurso. Los Custom Resources de operador
-  (`gateway.yaml`, `kuadrant.yaml`) llevan el nombre del recurso, que ya es
-  autoexplicativo.
+  del archivo delate el tipo de recurso. El descriptor es el **nombre del
+  recurso** (`canary-service-v1-deployment.yaml` contiene el Deployment
+  `canary-service-v1`).
 - **Ningún secreto en Git.** Las credenciales se referencian por el nombre del
   Secret; su valor se crea en el cluster o lo sincroniza un gestor de secretos.

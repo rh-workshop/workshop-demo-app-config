@@ -21,7 +21,7 @@ patches:
       name: demo-service-config
   # A diferencia de desarrollo, pruebas ejecuta dos réplicas: el mismo "qué"
   # de la base con un "cuánto" distinto, que es el papel de un overlay.
-  - path: deployment-replicas.yaml
+  - path: demo-service-deployment.yaml
     target:
       kind: Deployment
       name: demo-service

@@ -1,8 +1,0 @@
-# Overlay de Connectivity Link para el cluster del workshop.
-apiVersion: kustomize.config.k8s.io/v1beta1
-kind: Kustomization
-
-namespace: kuadrant-system
-
-resources:
-  - ../../base

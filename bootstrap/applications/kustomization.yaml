@@ -6,7 +6,6 @@ namespace: openshift-gitops
 
 resources:
   - argocd-application.yaml
-  - gateway-application.yaml
   - demo-service-dev-application.yaml
   - pipelines-application.yaml
   - policies-dev-application.yaml
