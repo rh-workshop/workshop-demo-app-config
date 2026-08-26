@@ -1,8 +1,0 @@
-# Sin "namespace:" a propósito: cada RoleBinding declara el suyo (workshop-demo-dev,
-# el dueño de la imagen) y kustomize no debe sobrescribirlo.
-apiVersion: kustomize.config.k8s.io/v1beta1
-kind: Kustomization
-resources:
-  - rolebinding-api-image-pull-cross-namespace.yaml
-  - rolebinding-bluegreen-image-pull-cross-namespace.yaml
-  - rolebinding-circuit-breaker-image-pull-cross-namespace.yaml

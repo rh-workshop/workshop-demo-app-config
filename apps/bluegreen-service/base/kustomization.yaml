@@ -7,3 +7,4 @@ resources:
   - service-bluegreen-green.yaml
   - httproute-bluegreen-traffic-switch.yaml
   - authpolicy-bluegreen-jwt.yaml
+  - rolebinding-bluegreen-image-pull-cross-namespace.yaml

@@ -8,3 +8,4 @@ resources:
   - destinationrule-circuit-breaker.yaml
   - httproute-circuit-breaker-frontend.yaml
   - authpolicy-circuit-breaker-jwt.yaml
+  - rolebinding-circuit-breaker-image-pull-cross-namespace.yaml
