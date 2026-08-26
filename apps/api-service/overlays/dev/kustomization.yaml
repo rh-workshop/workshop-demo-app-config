@@ -29,7 +29,7 @@ patches:
 # en el ImageStream de workshop-demo-dev (donde publica el pipeline), aunque
 # los pods corran en api-demo-dev: de ahí el RoleBinding image-puller.
 images:
-- digest: sha256:58912101bf4946e23c958cbe282f9f270e7912b55917a45d4cf5358bf015bc1f
+- digest: sha256:6cd4388e752b71e1fedd6c625661e9658779af9acdc5587cc43ad98354da61ef
   name: api-service
   newName: image-registry.openshift-image-registry.svc:5000/workshop-demo-dev/api-service
 
