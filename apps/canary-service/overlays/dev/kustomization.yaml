@@ -21,7 +21,7 @@ patches:
 images:
   - name: app-workshop
     newName: image-registry.openshift-image-registry.svc:5000/workshop-demo-dev/app-workshop
-    newTag: "1.0.0"
+    digest: sha256:3382a7bb24fc5a045156b94bed94f3a814d314bad520522b42f2d0eebdf613d0
 
 labels:
   - pairs:

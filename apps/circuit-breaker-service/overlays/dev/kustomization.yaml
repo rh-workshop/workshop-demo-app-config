@@ -18,10 +18,16 @@ patches:
 # La base deja un placeholder y aquí se resuelve la imagen real: es el punto
 # donde el pipeline de CI escribe el digest recién construido. Comparte la imagen
 # con los otros servicios: lo que se demuestra es el corte, no la aplicación.
+#
+# Por DIGEST y no por tag: el tag es móvil y se reescribe al reconstruir, así que
+# dos servicios que declaran el mismo tag pueden acabar corriendo binarios
+# distintos según cuándo arrancó cada pod. Pasó aquí: estos pods se quedaron con
+# una imagen anterior cacheada y devolvían 404 en /api/call mientras el resto sí
+# la servía. El digest identifica un contenido, no una etiqueta.
 images:
   - name: app-workshop
     newName: image-registry.openshift-image-registry.svc:5000/workshop-demo-dev/app-workshop
-    newTag: "1.0.0"
+    digest: sha256:3382a7bb24fc5a045156b94bed94f3a814d314bad520522b42f2d0eebdf613d0
 
 labels:
   - pairs:
