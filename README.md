@@ -24,18 +24,20 @@ comando contra el cluster.
 
 | Ruta | Contenido |
 |---|---|
-| `bootstrap/` | La Application raíz (patrón *app of apps*) y las Applications que componen el workshop |
-| `platform/pipelines/` | Los dos pipelines de Tekton (CI y CD), la identidad que los ejecuta, y en `runs/` los PipelineRun de ejemplo (se lanzan a mano, Argo no los toca) |
 | `apps/demo-service/` | Deployment, Service y ConfigMap de la aplicación, con overlays `dev` y `test` |
 | `apps/canary-service/` | Despliegue canary: dos versiones con reparto de tráfico por pesos en la HTTPRoute |
 | `apps/bluegreen-service/` | Despliegue blue-green: dos versiones con conmutación total de tráfico |
 | `apps/circuit-breaker-service/` | Frontend y backend con DestinationRule de circuit breaker |
 | `policies/` | AuthPolicy y RateLimitPolicy del servicio |
 
-> La **plataforma** (el Gateway compartido, el CR de Kuadrant y sus políticas
-> transversales) NO vive aquí: su fuente de verdad es el repositorio
-> `workshop-demo-platform-config`. Este repositorio solo contiene lo que es de
-> los equipos de aplicación: las apps, sus políticas y los pipelines.
+> La **plataforma** NO vive aquí: su fuente de verdad es el repositorio
+> `workshop-demo-platform-config`. Eso incluye el Gateway compartido, el CR de
+> Kuadrant, los **pipelines de Tekton** (montan el token de escritura sobre este
+> repositorio: gobierno de plataforma) y las **Applications de Argo CD**: los
+> servicios de `apps/` los descubren los ApplicationSets `workshop-*` de ese
+> repositorio, así que aquí no se declara ningún objeto de Argo. Este
+> repositorio solo contiene lo que es de los equipos de aplicación: las apps y
+> sus políticas.
 >
 > La configuración del **propio Argo CD** (el CR `ArgoCD`, los AppProjects y el
 > RBAC del controller) tampoco vive aquí: la aplica el **bootstrap** del cluster
@@ -51,24 +53,39 @@ namespace donde se construye).
 Todos los directorios siguen el patrón **base + overlays** de Kustomize: la
 `base` declara el *qué* y cada overlay el *dónde* y el *cuánto*.
 
-## Instalación
+## Despliegue: quién crea las Applications
 
-La Application raíz la aplica el **bootstrap del cluster** (el playbook de
-`workshop-demo-platform-config/bootstrap/ansible/`), después de crear los
-AppProjects y el CR `ArgoCD`. A partir de ella, Argo CD despliega el resto.
-El root corre en el AppProject `gitops-control`, con una whitelist mínima:
-solo puede crear Applications en el namespace de Argo.
+Ningún objeto de Argo CD vive en este repositorio. Los **ApplicationSets
+`workshop-services-dev` y `workshop-gateway-routes-dev`** (en
+`workshop-demo-platform-config/gitops/appsets/`) recorren este repositorio con
+un generador `git` de directorios:
 
-Las Applications hijas se ordenan con `argocd.argoproj.io/sync-wave`, porque el
-orden importa:
+- `apps/*/overlays/dev` → una Application por servicio (onda 2).
+- `apps/*/gateway-route/overlays/dev` → una Application por Route del gateway,
+  desplegada en `platform-gateway` (onda 1).
+
+**Añadir un servicio nuevo** consiste en crear su carpeta
+`apps/<componente>-service/` siguiendo el patrón existente; el ApplicationSet
+la detecta solo. La plantilla (project, destino, syncPolicy) la define
+plataforma, y el AppProject `workshop-platform` (allow-list de kinds y
+namespaces, falla cerrado) acota lo que este repositorio puede desplegar. El
+namespace de destino sale del nombre de la carpeta: `<componente>-demo-dev`
+(el servicio original `demo-service` conserva `workshop-demo-dev`).
+
+Las Applications de `image-pullers` y `policies` (y la de los pipelines) se
+declaran estáticamente en `workshop-demo-platform-config/gitops/apps/workshop/`.
 
 | Onda | Componente | Motivo del orden |
 |---|---|---|
+| 1 | Rutas del gateway e image-pullers | La Route y el permiso de imagen existen antes que el servicio |
 | 2 | Aplicaciones y pipelines | Necesitan el gateway compartido ya disponible (lo despliega `workshop-demo-platform-config`) y el AppProject `workshop-platform`, que crea el bootstrap |
 | 3 | Políticas | Se declaran sobre el HTTPRoute de la aplicación, que debe existir antes |
 
 ## Pipelines: CI y CD separados
 
+Las definiciones viven en `workshop-demo-platform-config/workshop-pipelines/`
+(el pipeline monta el token de escritura sobre este repositorio, así que su
+definición es gobierno de plataforma), pero operan SOBRE este repositorio.
 El flujo está partido en dos pipelines, cada uno con una responsabilidad clara:
 
 - **`ci-build-image`** — clona `workshop-app`, construye la imagen con
@@ -81,7 +98,8 @@ El flujo está partido en dos pipelines, cada uno con una responsabilidad clara:
 Cada uno se lanza con su PipelineRun de ejemplo:
 
 ```bash
-oc create -f platform/pipelines/runs/pipelinerun-ci-build-image.yaml -n workshop-demo-dev
+# Desde un clon de workshop-demo-platform-config:
+oc create -f workshop-pipelines/runs/pipelinerun-ci-build-image.yaml -n workshop-demo-dev
 ```
 
 En este entorno la imagen se publica en el **registro interno de OpenShift**
@@ -158,8 +176,6 @@ done; echo
   | DestinationRule | `destinationrule-` |
   | RoleBinding / ClusterRole | `rolebinding-` / `clusterrole-` |
   | ServiceAccount | `serviceaccount-` |
-  | Pipeline / PipelineRun | `pipeline-` / `pipelinerun-` |
-  | Application (Argo CD) | `application-` |
 
   Ejemplos:
   - `httproute-canary-weighted-split.yaml` — HTTPRoute que reparte el tráfico
