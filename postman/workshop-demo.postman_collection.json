@@ -93,7 +93,7 @@
        }
       ],
       "url": {
-       "raw": "https://demo-dev.{{base_domain}}/",
+       "raw": "https://{{gateway_host}}/demo",
        "protocol": "https",
        "host": [
         "demo-dev.{{base_domain}}"
@@ -132,7 +132,7 @@
        }
       ],
       "url": {
-       "raw": "https://demo-dev.{{base_domain}}/health",
+       "raw": "https://{{gateway_host}}/demo/health",
        "protocol": "https",
        "host": [
         "demo-dev.{{base_domain}}"
@@ -167,7 +167,7 @@
        }
       ],
       "url": {
-       "raw": "https://demo-dev.{{base_domain}}/api/echo",
+       "raw": "https://{{gateway_host}}/demo/api/echo",
        "protocol": "https",
        "host": [
         "demo-dev.{{base_domain}}"
@@ -206,7 +206,7 @@
        }
       ],
       "url": {
-       "raw": "https://demo-dev.{{base_domain}}/api/error",
+       "raw": "https://{{gateway_host}}/demo/api/error",
        "protocol": "https",
        "host": [
         "demo-dev.{{base_domain}}"
@@ -242,7 +242,7 @@
        }
       ],
       "url": {
-       "raw": "https://demo-dev.{{base_domain}}/metrics",
+       "raw": "https://{{gateway_host}}/demo/metrics",
        "protocol": "https",
        "host": [
         "demo-dev.{{base_domain}}"
@@ -278,7 +278,7 @@
        }
       ],
       "url": {
-       "raw": "https://demo-dev.{{base_domain}}/ui",
+       "raw": "https://{{gateway_host}}/demo/ui",
        "protocol": "https",
        "host": [
         "demo-dev.{{base_domain}}"
@@ -320,7 +320,7 @@
        }
       ],
       "url": {
-       "raw": "https://canary-dev.{{base_domain}}/",
+       "raw": "https://{{gateway_host}}/canary",
        "protocol": "https",
        "host": [
         "canary-dev.{{base_domain}}"
@@ -366,7 +366,7 @@
        }
       ],
       "url": {
-       "raw": "https://canary-dev.{{base_domain}}/health",
+       "raw": "https://{{gateway_host}}/canary/health",
        "protocol": "https",
        "host": [
         "canary-dev.{{base_domain}}"
@@ -418,7 +418,7 @@
        }
       ],
       "url": {
-       "raw": "https://bluegreen-dev.{{base_domain}}/",
+       "raw": "https://{{gateway_host}}/bluegreen",
        "protocol": "https",
        "host": [
         "bluegreen-dev.{{base_domain}}"
@@ -460,7 +460,7 @@
        }
       ],
       "url": {
-       "raw": "https://bluegreen-dev.{{base_domain}}/",
+       "raw": "https://{{gateway_host}}/bluegreen",
        "protocol": "https",
        "host": [
         "bluegreen-dev.{{base_domain}}"
@@ -503,7 +503,7 @@
        }
       ],
       "url": {
-       "raw": "https://cb-dev.{{base_domain}}/api/call?path=/api/echo",
+       "raw": "https://{{gateway_host}}/circuit-breaker/api/call?path=/api/echo",
        "protocol": "https",
        "host": [
         "cb-dev.{{base_domain}}"
@@ -549,7 +549,7 @@
        }
       ],
       "url": {
-       "raw": "https://cb-dev.{{base_domain}}/api/call?path=/api/error",
+       "raw": "https://{{gateway_host}}/circuit-breaker/api/call?path=/api/error",
        "protocol": "https",
        "host": [
         "cb-dev.{{base_domain}}"
@@ -593,7 +593,7 @@
        }
       ],
       "url": {
-       "raw": "https://cb-dev.{{base_domain}}/api/call?path=/api/error",
+       "raw": "https://{{gateway_host}}/circuit-breaker/api/call?path=/api/error",
        "protocol": "https",
        "host": [
         "cb-dev.{{base_domain}}"
@@ -637,7 +637,7 @@
        }
       ],
       "url": {
-       "raw": "https://cb-dev.{{base_domain}}/api/call?path=/api/error",
+       "raw": "https://{{gateway_host}}/circuit-breaker/api/call?path=/api/error",
        "protocol": "https",
        "host": [
         "cb-dev.{{base_domain}}"
@@ -681,7 +681,7 @@
        }
       ],
       "url": {
-       "raw": "https://cb-dev.{{base_domain}}/api/call?path=/api/echo",
+       "raw": "https://{{gateway_host}}/circuit-breaker/api/call?path=/api/echo",
        "protocol": "https",
        "host": [
         "cb-dev.{{base_domain}}"
@@ -726,7 +726,7 @@
        }
       ],
       "url": {
-       "raw": "https://cb-dev.{{base_domain}}/api/call?path=/api/slow%3Fs%3D3",
+       "raw": "https://{{gateway_host}}/circuit-breaker/api/call?path=/api/slow%3Fs%3D3",
        "protocol": "https",
        "host": [
         "cb-dev.{{base_domain}}"
@@ -776,7 +776,7 @@
        "type": "noauth"
       },
       "url": {
-       "raw": "https://canary-dev.{{base_domain}}/",
+       "raw": "https://{{gateway_host}}/canary",
        "protocol": "https",
        "host": [
         "canary-dev.{{base_domain}}"
@@ -811,7 +811,7 @@
        }
       ],
       "url": {
-       "raw": "https://canary-dev.{{base_domain}}/",
+       "raw": "https://{{gateway_host}}/canary",
        "protocol": "https",
        "host": [
         "canary-dev.{{base_domain}}"
@@ -846,7 +846,7 @@
        }
       ],
       "url": {
-       "raw": "https://demo-dev.{{base_domain}}/",
+       "raw": "https://{{gateway_host}}/demo",
        "protocol": "https",
        "host": [
         "demo-dev.{{base_domain}}"
@@ -900,7 +900,7 @@
        }
       ],
       "url": {
-       "raw": "https://api-dev.{{base_domain}}/api/v1/accounts",
+       "raw": "https://{{gateway_host}}/api/v1/accounts",
        "protocol": "https",
        "host": [
         "api-dev.{{base_domain}}"
@@ -942,7 +942,7 @@
        }
       ],
       "url": {
-       "raw": "https://api-dev.{{base_domain}}/api/v1/accounts/ACC-001",
+       "raw": "https://{{gateway_host}}/api/v1/accounts/ACC-001",
        "protocol": "https",
        "host": [
         "api-dev.{{base_domain}}"
@@ -985,7 +985,7 @@
        }
       ],
       "url": {
-       "raw": "https://api-dev.{{base_domain}}/api/v1/accounts/NO-EXISTE",
+       "raw": "https://{{gateway_host}}/api/v1/accounts/NO-EXISTE",
        "protocol": "https",
        "host": [
         "api-dev.{{base_domain}}"
@@ -1027,7 +1027,7 @@
        }
       ],
       "url": {
-       "raw": "https://api-dev.{{base_domain}}/api/v1/payments",
+       "raw": "https://{{gateway_host}}/api/v1/payments",
        "protocol": "https",
        "host": [
         "api-dev.{{base_domain}}"
@@ -1081,7 +1081,7 @@
        }
       ],
       "url": {
-       "raw": "https://api-dev.{{base_domain}}/api/v1/payments",
+       "raw": "https://{{gateway_host}}/api/v1/payments",
        "protocol": "https",
        "host": [
         "api-dev.{{base_domain}}"
@@ -1126,7 +1126,7 @@
        }
       ],
       "url": {
-       "raw": "https://api-dev.{{base_domain}}/api/v1/payments/{{payment_id}}",
+       "raw": "https://{{gateway_host}}/api/v1/payments/{{payment_id}}",
        "protocol": "https",
        "host": [
         "api-dev.{{base_domain}}"
@@ -1164,7 +1164,7 @@
       "method": "GET",
       "header": [],
       "url": {
-       "raw": "https://api-dev.{{base_domain}}/api/v1/accounts",
+       "raw": "https://{{gateway_host}}/api/v1/accounts",
        "protocol": "https",
        "host": [
         "api-dev.{{base_domain}}"
@@ -1205,7 +1205,7 @@
        }
       ],
       "url": {
-       "raw": "https://api-dev.{{base_domain}}/api/v1/payments",
+       "raw": "https://{{gateway_host}}/api/v1/payments",
        "protocol": "https",
        "host": [
         "api-dev.{{base_domain}}"
