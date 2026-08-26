@@ -5,32 +5,32 @@ kind: Kustomization
 namespace: api-demo-dev
 
 resources:
-  - ../../base
-  - namespace-api-demo-dev.yaml
+- ../../base
+- namespace-api-demo-dev.yaml
 
 patches:
-  - path: httproute-api-service.yaml
-    target:
-      kind: HTTPRoute
-      name: api-service
-  - path: authpolicy-api-service-jwt.yaml
-    target:
-      kind: AuthPolicy
-      name: api-service
-  - path: configmap-api-service-env-config.yaml
-    target:
-      kind: ConfigMap
-      name: api-service-config
+- path: httproute-api-service.yaml
+  target:
+    kind: HTTPRoute
+    name: api-service
+- path: authpolicy-api-service-jwt.yaml
+  target:
+    kind: AuthPolicy
+    name: api-service
+- path: configmap-api-service-env-config.yaml
+  target:
+    kind: ConfigMap
+    name: api-service-config
 
 # La base deja un placeholder y aquí se resuelve la imagen real: es el punto
 # donde el pipeline de CI escribe el digest recién construido. La imagen vive
 # en el ImageStream de workshop-demo-dev (donde publica el pipeline), aunque
 # los pods corran en api-demo-dev: de ahí el RoleBinding image-puller.
 images:
-  - name: api-service
-    newName: image-registry.openshift-image-registry.svc:5000/workshop-demo-dev/api-service
-    newTag: "1.0.0"
+- digest: sha256:58912101bf4946e23c958cbe282f9f270e7912b55917a45d4cf5358bf015bc1f
+  name: api-service
+  newName: image-registry.openshift-image-registry.svc:5000/workshop-demo-dev/api-service
 
 labels:
-  - pairs:
-      workshop.redhat.com/environment: dev
+- pairs:
+    workshop.redhat.com/environment: dev
