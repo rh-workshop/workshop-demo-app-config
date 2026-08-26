@@ -10,22 +10,26 @@ metadata:
   generateName: cd-deploy-application-
   labels:
     app.kubernetes.io/part-of: workshop-gitops
-  annotations:
-    pipeline.tekton.dev/affinity-assistant: disabled
 spec:
   pipelineRef:
     name: cd-deploy-application
   # Identidad con permiso para pedirle la sincronización a Argo CD.
   taskRunTemplate:
     serviceAccountName: builder
+  # Cota explícita: si el run se cuelga (repo inaccesible, sync que nunca converge) no queda corriendo para siempre.
+  timeouts:
+    pipeline: 30m0s
   workspaces:
+    # Solución canónica de Tekton para compartir un PVC RWO entre tareas: el asistente de afinidad (activo por defecto) las coprograma en el mismo nodo.
+    # Por eso NO se deshabilita con la anotación pipeline.tekton.dev/affinity-assistant y basta ReadWriteOnce.
+    # El asistente además actúa de primer consumidor, así que también funciona con StorageClasses WaitForFirstConsumer.
     - name: config
       volumeClaimTemplate:
         spec:
           accessModes:
             - ReadWriteOnce
-          # Con el asistente de afinidad desactivado (ver la anotación de arriba) basta la StorageClass por defecto; descomentar solo si el cluster no tiene una.
-          # storageClassName: <storageclass-del-cluster>
+          # Sustituir por una StorageClass RWO del cluster (o borrar la línea para usar la default).
+          storageClassName: CHANGE_ME_STORAGECLASS
           resources:
             requests:
               storage: 1Gi

@@ -1,10 +1,14 @@
-# Pipeline de CI: construye la imagen y la promociona en el repo de configuracion.
+# Pipeline de CI: construye la imagen y la promociona en el repo de configuración.
 #
-# Es la mitad "integracion" del flujo: toma el CODIGO (repo de aplicacion),
-# construye y FIRMA la imagen, la publica en el registro, y luego escribe el
-# digest en el repo de CONFIGURACION. Ese git push es lo que dispara el CD.
+# Es la mitad "integración" del flujo: toma el CÓDIGO (repo de aplicación),
+# construye la imagen, la publica en el registro, y luego escribe el digest en
+# el repo de CONFIGURACIÓN. Ese git push es lo que dispara el CD.
+# La firma NO la hace ninguna task: Tekton Chains (activo en el operador) firma
+# la imagen y genera la atestación in-toto automáticamente al terminar el run.
 #
-# Maneja los DOS repos: lee el de aplicacion, escribe en el de configuracion.
+# Maneja los DOS repos: lee el de aplicación, escribe en el de configuración.
+# Este flujo promociona a DEV con push directo; hacia PROD la promoción se hace
+# vía Pull Request sobre el overlay de prod, nunca con push directo.
 apiVersion: tekton.dev/v1
 kind: Pipeline
 metadata:
@@ -19,6 +23,8 @@ spec:
     - name: image
     - {name: containerfile, default: ./Containerfile}
     - {name: overlay-path, default: apps/demo-service/overlays/dev}
+    # Nombre LÓGICO de la imagen en el kustomization (campo images[].name), no la URL del registro.
+    - {name: image-name, default: app-workshop}
   workspaces:
     - name: source
     - name: config
@@ -28,6 +34,8 @@ spec:
       value: $(tasks.build-and-publish-image.results.IMAGE_DIGEST)
   tasks:
     - name: clone-source-code
+      # Un reintento absorbe los fallos transitorios de red contra el repositorio remoto.
+      retries: 1
       taskRef: {resolver: cluster, params: [{name: kind, value: task}, {name: name, value: git-clone}, {name: namespace, value: openshift-pipelines}]}
       params:
         - {name: URL, value: $(params.app-repo)}
@@ -40,33 +48,85 @@ spec:
       params:
         - {name: IMAGE, value: $(params.image)}
         - {name: DOCKERFILE, value: $(params.containerfile)}
-        - {name: TLS_VERIFY, value: "false"}
+        # Verificación TLS activa: el pod de buildah confía en la CA del registro interno (validado en vivo).
+        - {name: TLS_VERIFY, value: "true"}
       workspaces: [{name: source, workspace: source}]
 
     - name: clone-config-repo
       runAfter: [build-and-publish-image]
+      # Un reintento absorbe los fallos transitorios de red contra el repositorio remoto.
+      retries: 1
       taskRef: {resolver: cluster, params: [{name: kind, value: task}, {name: name, value: git-clone}, {name: namespace, value: openshift-pipelines}]}
       params:
         - {name: URL, value: $(params.config-repo)}
         - {name: REVISION, value: $(params.config-revision)}
       workspaces: [{name: output, workspace: config}]
 
-    - name: update-digest-with-kustomize
+    # Promociona el digest con "kustomize edit set image": entiende la semántica del
+    # kustomization (no corrompe overlays con varias imágenes, como haría un sed) y el
+    # "*" conserva el newName existente a la vez que elimina el newTag.
+    - name: set-image-digest
       runAfter: [clone-config-repo]
+      params:
+        - {name: overlay-path, value: $(params.overlay-path)}
+        - {name: image-name, value: $(params.image-name)}
+        - {name: image-digest, value: $(tasks.build-and-publish-image.results.IMAGE_DIGEST)}
+      taskSpec:
+        params:
+          - {name: overlay-path, type: string}
+          - {name: image-name, type: string}
+          - {name: image-digest, type: string}
+        workspaces:
+          - name: config
+        steps:
+          - name: kustomize-set-image
+            # La imagen de Argo CD del operador GitOps ya instalado trae kustomize y git: no hace falta traer nada nuevo al cluster.
+            image: registry.redhat.io/openshift-gitops-1/argocd-rhel9:1.21
+            workingDir: $(workspaces.config.path)/$(params.overlay-path)
+            securityContext:
+              allowPrivilegeEscalation: false
+              capabilities: {drop: [ALL]}
+            script: |
+              #!/usr/bin/env sh
+              set -eu
+              kustomize edit set image "$(params.image-name)=*@$(params.image-digest)"
+              echo "Overlay actualizado:" && cat kustomization.yaml
+
+    - name: push-config
+      runAfter: [set-image-digest]
       taskRef: {resolver: cluster, params: [{name: kind, value: task}, {name: name, value: git-cli}, {name: namespace, value: openshift-pipelines}]}
       params:
         - {name: GIT_USER_NAME, value: "pipeline-ci"}
         - {name: GIT_USER_EMAIL, value: "pipeline-ci@ejemplo.local"}
+        # La task git-cli borra el workspace entero antes de correr (DELETE_EXISTING vale "true" por defecto): hay que apagarlo o pierde el clon de la tarea anterior.
+        - {name: DELETE_EXISTING, value: "false"}
         - name: GIT_SCRIPT
           value: |
-            cd $(params.overlay-path)
-            # Acepta newTag (primera ejecución) y digest (siguientes): así el paso es idempotente.
-            sed -i -E "s|^( *)(newTag|digest):.*|\1digest: $(tasks.build-and-publish-image.results.IMAGE_DIGEST)|" kustomization.yaml
+            set -eu
+            # El workspace se monta en rutas distintas según la task que lo use
+            # (git-clone lo llama "output" y git-cli "source"), así que se parte
+            # de la ruta que declara ESTA task en vez de asumir el directorio.
+            cd $(workspaces.source.path)
+            # Se añade SOLO el fichero tocado: un "commit -a" arrastraría cualquier otro cambio del workspace.
+            git add $(params.overlay-path)/kustomization.yaml
             # Sin cambios (mismo digest) no hay nada que promocionar: se sale con éxito.
-            git diff --quiet && echo "El overlay ya apunta a este digest; no se promociona nada." && exit 0
-            git commit -am "ci: promociona la imagen al digest recien construido"
+            if git diff --cached --quiet; then
+              echo "El overlay ya apunta a este digest; no se promociona nada."
+              exit 0
+            fi
+            git commit -m "ci: promote $(params.image-name) to digest $(tasks.build-and-publish-image.results.IMAGE_DIGEST)"
+            # Reintento con rebase: si otro PipelineRun empujó antes, el push sería non-fast-forward.
             # git-clone deja el repo en detached HEAD: hay que calificar la rama destino.
-            git push origin HEAD:$(params.config-revision)
+            for intento in 1 2 3; do
+              if git push origin HEAD:$(params.config-revision); then
+                exit 0
+              fi
+              echo "Push rechazado (intento ${intento}): se rebasa sobre el remoto y se reintenta."
+              git fetch origin $(params.config-revision)
+              git rebase FETCH_HEAD
+            done
+            echo "No se pudo empujar tras 3 intentos." >&2
+            exit 1
       workspaces:
         - {name: source, workspace: config}
         - {name: basic-auth, workspace: git-credentials}

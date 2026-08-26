@@ -1,22 +1,23 @@
-# Servicio protegido por circuit breaker. El breaker lo aplica el sidecar Envoy
-# (inyectado por Istio), no la app: por eso el pod debe entrar al mesh.
+# service2-backend. El circuit breaker se demuestra con DOS servicios: uno llama al otro y
+# la DestinationRule vigila esa llamada. Con uno solo el corte no se aprecia,
+# porque maxEjectionPercent impide expulsar la unica replica disponible.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: circuit-breaker-service
+  name: service2-backend
   labels:
-    app: circuit-breaker-service
+    app: service2-backend
 spec:
   replicas: 2
   selector:
     matchLabels:
-      app: circuit-breaker-service
+      app: service2-backend
   template:
     metadata:
       labels:
-        app: circuit-breaker-service
+        app: service2-backend
       annotations:
-        # Fuerza la inyeccion del sidecar de Istio en este pod.
+        # El sidecar de Istio es quien aplica la DestinationRule.
         sidecar.istio.io/inject: "true"
     spec:
       containers:
@@ -28,7 +29,7 @@ spec:
             - name: APP_VERSION
               value: "1.0.0"
             - name: APP_NOMBRE
-              value: circuit-breaker-service
+              value: service2-backend
             - name: APP_ENTORNO
               value: dev
           # Solo sonda de vida: la readiness se omite A PROPOSITO. Quien debe

@@ -1,8 +1,8 @@
 # Pipeline de CD: valida el manifiesto y sincroniza con Argo CD.
 #
 # Es la mitad "despliegue" del flujo. Lo dispara el git push que hace el CI al
-# repo de configuracion. CD NO reconstruye ni toca el codigo: solo lee el repo de
-# CONFIGURACION, valida que el overlay renderiza, y le pide a Argo que sincronice
+# repo de configuración. CD NO reconstruye ni toca el código: solo lee el repo de
+# CONFIGURACIÓN, valida que el overlay renderiza, y le pide a Argo que sincronice
 # la Application.
 apiVersion: tekton.dev/v1
 kind: Pipeline
@@ -11,16 +11,20 @@ metadata:
 spec:
   params:
     - {name: config-repo, default: "https://github.com/rh-workshop/workshop-demo-app-config.git"}
+    # Rama del repo de configuración que se valida y se sincroniza.
+    - {name: config-revision, default: main}
     - {name: overlay-path, default: apps/demo-service/overlays/dev}
     - {name: argocd-application, default: demo-service-dev}
   workspaces:
     - name: config
   tasks:
     - name: clone-config-repo
+      # Un reintento absorbe los fallos transitorios de red contra el repositorio remoto.
+      retries: 1
       taskRef: {resolver: cluster, params: [{name: kind, value: task}, {name: name, value: git-clone}, {name: namespace, value: openshift-pipelines}]}
       params:
         - {name: URL, value: $(params.config-repo)}
-        - {name: REVISION, value: main}
+        - {name: REVISION, value: $(params.config-revision)}
       workspaces: [{name: output, workspace: config}]
 
     - name: validate-kustomize-manifests

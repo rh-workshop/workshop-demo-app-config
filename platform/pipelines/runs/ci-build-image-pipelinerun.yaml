@@ -11,31 +11,29 @@ metadata:
   generateName: ci-build-image-
   labels:
     app.kubernetes.io/part-of: workshop-gitops
-  annotations:
-    # El "asistente de afinidad" de Tekton fuerza a que todas las tareas que
-    # comparten workspace caigan en el mismo nodo. Con una clase de
-    # almacenamiento en modo WaitForFirstConsumer eso produce un bloqueo mutuo:
-    # el volumen espera a que se programe un pod y el pod espera al volumen, y
-    # la ejecución queda Pending con "didn't match pod affinity rules".
-    # Al desactivarlo, cada tarea se programa con normalidad.
-    pipeline.tekton.dev/affinity-assistant: disabled
 spec:
   pipelineRef:
     name: ci-build-image
   # Identidad con permiso para publicar en el registro de imágenes.
   taskRunTemplate:
     serviceAccountName: builder
+  # Cota explícita: si el run se cuelga (registro caído, push bloqueado) no queda corriendo para siempre.
+  timeouts:
+    pipeline: 1h0m0s
   params:
     - name: image
       value: image-registry.openshift-image-registry.svc:5000/workshop-demo-dev/app-workshop:1.0.0
   workspaces:
+    # Solución canónica de Tekton para compartir un PVC RWO entre tareas: el asistente de afinidad (activo por defecto) las coprograma en el mismo nodo.
+    # Por eso NO se deshabilita con la anotación pipeline.tekton.dev/affinity-assistant y basta ReadWriteOnce.
+    # El asistente además actúa de primer consumidor, así que también funciona con StorageClasses WaitForFirstConsumer.
     - name: source
       volumeClaimTemplate:
         spec:
           accessModes:
             - ReadWriteOnce
-          # Con el asistente de afinidad desactivado (ver la anotación de arriba) basta la StorageClass por defecto; descomentar solo si el cluster no tiene una.
-          # storageClassName: <storageclass-del-cluster>
+          # Sustituir por una StorageClass RWO del cluster (o borrar la línea para usar la default).
+          storageClassName: CHANGE_ME_STORAGECLASS
           resources:
             requests:
               storage: 1Gi
@@ -44,8 +42,8 @@ spec:
         spec:
           accessModes:
             - ReadWriteOnce
-          # Con el asistente de afinidad desactivado (ver la anotación de arriba) basta la StorageClass por defecto; descomentar solo si el cluster no tiene una.
-          # storageClassName: <storageclass-del-cluster>
+          # Sustituir por una StorageClass RWO del cluster (o borrar la línea para usar la default).
+          storageClassName: CHANGE_ME_STORAGECLASS
           resources:
             requests:
               storage: 1Gi
