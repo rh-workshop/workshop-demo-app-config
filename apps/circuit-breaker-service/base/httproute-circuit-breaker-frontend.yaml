@@ -7,7 +7,7 @@ spec:
     - name: shared-gateway
       namespace: platform-gateway
   hostnames:
-    - apis.apps.CHANGE_ME_DOMINIO
+    - apis.apps.cluster-qthlq.dyn.redhatworkshops.io
   rules:
     - matches:
         - path:

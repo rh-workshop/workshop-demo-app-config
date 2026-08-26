@@ -9,7 +9,7 @@ spec:
       namespace: platform-gateway
   hostnames:
     # Sustituir por el dominio del cluster donde corre TEST (en este workshop, el de DESARROLLO): apps.<cluster-dev>.<dominio-base>
-    - demo-test.apps.cluster-dev.ejemplo.com
+    - demo-test.apps.cluster-qthlq.dyn.redhatworkshops.io
   rules:
     - matches:
         - path:

@@ -5,5 +5,5 @@ metadata:
   name: canary-service
 spec:
   hostnames:
-    # Sustituir por el dominio del cluster de DESARROLLO: apps.<cluster-dev>.<dominio-base>
-    - apis.apps.cluster-dev.ejemplo.com
+    # Dominio del cluster de laboratorio: al cambiar de cluster hay que actualizarlo aqui.
+    - apis.apps.cluster-qthlq.dyn.redhatworkshops.io
