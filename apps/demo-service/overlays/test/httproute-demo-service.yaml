@@ -14,7 +14,16 @@ spec:
     - matches:
         - path:
             type: PathPrefix
-            value: /
+            value: /demo
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            # El servicio sirve en la raiz: se le quita el prefijo del path con
+            # el que se le distingue en el dominio compartido. Sin esto recibiria
+            # /demo/loquesea y responderia 404.
+            path:
+              type: ReplacePrefixMatch
+              replacePrefixMatch: /
       backendRefs:
         - name: demo-service
           port: 8080

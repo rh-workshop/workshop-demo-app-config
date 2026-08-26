@@ -11,12 +11,12 @@ spec:
     - name: shared-gateway
       namespace: platform-gateway
   hostnames:
-    - api-dev.apps.CHANGE_ME_DOMINIO
+    - apis.apps.CHANGE_ME_DOMINIO
   rules:
     - matches:
         - path:
             type: PathPrefix
-            value: /
+            value: /api
       backendRefs:
         - name: api-service
           port: 8080

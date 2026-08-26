@@ -18,16 +18,25 @@ spec:
     - name: shared-gateway
       namespace: platform-gateway
   hostnames:
-    - bluegreen-dev.apps.CHANGE_ME_DOMINIO
+    - apis.apps.CHANGE_ME_DOMINIO
   rules:
     # Regla de prueba dirigida: se evalúa ANTES que la del tráfico normal.
     - matches:
         - path:
             type: PathPrefix
-            value: /
+            value: /bluegreen
           headers:
             - name: x-version
               value: green
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            # El servicio sirve en la raiz: se le quita el prefijo del path con
+            # el que se le distingue en el dominio compartido. Sin esto recibiria
+            # /bluegreen/loquesea y responderia 404.
+            path:
+              type: ReplacePrefixMatch
+              replacePrefixMatch: /
       backendRefs:
         - name: bluegreen-service-green
           port: 8080
@@ -35,7 +44,16 @@ spec:
     - matches:
         - path:
             type: PathPrefix
-            value: /
+            value: /bluegreen
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            # El servicio sirve en la raiz: se le quita el prefijo del path con
+            # el que se le distingue en el dominio compartido. Sin esto recibiria
+            # /bluegreen/loquesea y responderia 404.
+            path:
+              type: ReplacePrefixMatch
+              replacePrefixMatch: /
       backendRefs:
         - name: bluegreen-service-blue
           port: 8080

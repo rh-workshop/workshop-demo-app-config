@@ -5,4 +5,4 @@ metadata:
 spec:
   hostnames:
     # Sustituir por el dominio del cluster de DESARROLLO: apps.<cluster-dev>.<dominio-base>
-    - cb-dev.apps.cluster-dev.ejemplo.com
+    - apis.apps.cluster-dev.ejemplo.com
