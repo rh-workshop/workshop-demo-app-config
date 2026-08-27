@@ -2,9 +2,8 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-# Sin "namespace:" global a propósito: el RoleBinding de descarga de imagen debe
-# quedarse en workshop-demo-dev (el dueño del ImageStream) y kustomize no debe
-# sobrescribirlo; el resto de recursos toma el namespace destino de la Application.
+# Sin "namespace:" global a propósito: cada recurso toma el namespace destino
+# de la Application y el Namespace del overlay ya trae su nombre propio.
 
 resources:
 - ../../base
@@ -26,8 +25,7 @@ patches:
 
 # La base deja un placeholder y aquí se resuelve la imagen real: es el punto
 # donde el pipeline de CI escribe el digest recién construido. La imagen vive
-# en el ImageStream de workshop-demo-dev (donde publica el pipeline), aunque
-# los pods corran en api-demo-dev: de ahí el RoleBinding image-puller.
+# en el registro corporativo (Quay) y se fija SIEMPRE por digest, nunca por tag.
 images:
 - digest: sha256:6cd4388e752b71e1fedd6c625661e9658779af9acdc5587cc43ad98354da61ef
   name: api-service

@@ -9,8 +9,8 @@ resources:
 - namespace-workshop-demo-dev.yaml
 - httproute-demo-service.yaml
 
-# La imagen se resuelve contra el registro interno de OpenShift. En una
-# plataforma real este valor apuntaría al registro corporativo (Quay).
+# La imagen se resuelve contra el registro corporativo (Quay) y se fija
+# SIEMPRE por digest: es el campo que el pipeline de CI actualiza al promocionar.
 images:
 - digest: sha256:b88648dc00b39091ea04e499ab0cb20eb1ebbb43aea5602f00ef59a8f309355d
   name: app-workshop

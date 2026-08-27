@@ -44,11 +44,9 @@ comando contra el cluster.
 > (`workshop-demo-platform-config/bootstrap/`), porque lo que Argo necesita para
 > existir no lo gestiona Argo.
 
-Cada servicio de `apps/` sigue el mismo patrón: `base/` + `overlays/<entorno>/`,
-más dos subárboles para los recursos que por necesidad técnica viven en **otro
-namespace**: `gateway-route/` (la Route de exposición, en `platform-gateway`) e
-`image-puller/` (el RoleBinding que permite tirar de la imagen desde el
-namespace donde se construye).
+Cada servicio de `apps/` sigue el mismo patrón: `base/` + `overlays/<entorno>/`.
+Las imágenes viven en el registro corporativo (Quay) y los overlays las fijan
+por digest; cada namespace descarga con su pull secret (`quay-pull-credentials`).
 
 Todos los directorios siguen el patrón **base + overlays** de Kustomize: la
 `base` declara el *qué* y cada overlay el *dónde* y el *cuánto*.
@@ -72,12 +70,12 @@ namespaces, falla cerrado) acota lo que este repositorio puede desplegar. El
 namespace de destino sale del nombre de la carpeta: `<componente>-demo-dev`
 (el servicio original `demo-service` conserva `workshop-demo-dev`).
 
-Las Applications de `image-pullers` y `policies` (y la de los pipelines) se
-declaran estáticamente en `workshop-demo-platform-config/gitops/apps/workshop/`.
+Las Applications de `policies` (y la de los pipelines) se declaran
+estáticamente en `workshop-demo-platform-config/gitops/apps/workshop/`.
 
 | Onda | Componente | Motivo del orden |
 |---|---|---|
-| 1 | Rutas del gateway e image-pullers | La Route y el permiso de imagen existen antes que el servicio |
+| 1 | Rutas del gateway | La Route de exposición existe antes que el servicio |
 | 2 | Aplicaciones y pipelines | Necesitan el gateway compartido ya disponible (lo despliega `workshop-demo-platform-config`) y el AppProject `workshop-platform`, que crea el bootstrap |
 | 3 | Políticas | Se declaran sobre el HTTPRoute de la aplicación, que debe existir antes |
 
@@ -102,11 +100,9 @@ Cada uno se lanza con su PipelineRun de ejemplo:
 oc create -f workshop-pipelines/runs/pipelinerun-ci-build-image.yaml -n workshop-demo-dev
 ```
 
-En este entorno la imagen se publica en el **registro interno de OpenShift**
-(`image-registry.openshift-image-registry.svc:5000`). En una plataforma real
-sería el **registro corporativo (Quay)**, y la credencial de publicación se
-inyectaría como un Secret de tipo `docker` referenciado por su **nombre** desde
-el workspace de la tarea de construcción.
+La imagen se publica en el **registro corporativo (Quay)** con su tag inmutable
+`git-<sha-corto>`; la credencial de publicación es un Secret de tipo `docker`
+referenciado por su **nombre** desde el workspace de la tarea de construcción.
 
 > Tekton corre **solo en el cluster hub**: el CI construye y el CD le pide a Argo
 > que despliegue. Ninguna de las dos cosas necesita ejecutarse en los clusters de
@@ -182,7 +178,5 @@ done; echo
     90/10 entre v1 y v2 por peso.
   - `deployment-bluegreen-green-standby.yaml` — Deployment de la versión green,
     desplegada en reserva a la espera de la conmutación.
-  - `rolebinding-image-pull-cross-namespace.yaml` — RoleBinding que concede
-    `system:image-puller` para descargar la imagen desde otro namespace.
 - **Ningún secreto en Git.** Las credenciales se referencian por el nombre del
   Secret; su valor se crea en el cluster o lo sincroniza un gestor de secretos.

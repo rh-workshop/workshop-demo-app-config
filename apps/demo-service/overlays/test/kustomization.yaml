@@ -9,10 +9,12 @@ resources:
   - namespace-workshop-demo-test.yaml
   - httproute-demo-service.yaml
 
+# Misma regla que en dev: la imagen vive en Quay y se fija por DIGEST, nunca por
+# tag; el namespace descarga con su pull secret (quay-pull-credentials).
 images:
   - name: app-workshop
-    newName: image-registry.openshift-image-registry.svc:5000/workshop-demo-test/app-workshop
-    newTag: "1.0.0"
+    newName: company-quay-quay-quay-enterprise.apps.cluster-qthlq.dyn.redhatworkshops.io/company/demo-service
+    digest: sha256:2dc7f86aea0c17cc9a2197871fc7f77c59082412eefbefbb717816cddaba8798
 
 patches:
   - path: configmap-demo-service-env-config.yaml

@@ -7,4 +7,3 @@ resources:
   - service-canary-v2.yaml
   - httproute-canary-weighted-split.yaml
   - authpolicy-canary-jwt.yaml
-  - rolebinding-canary-image-pull-cross-namespace.yaml

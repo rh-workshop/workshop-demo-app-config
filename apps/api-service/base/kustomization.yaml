@@ -10,4 +10,3 @@ resources:
   - httproute-api-service.yaml
   - authpolicy-api-service-jwt.yaml
   - ratelimitpolicy-api-service-per-route.yaml
-  - rolebinding-api-image-pull-cross-namespace.yaml

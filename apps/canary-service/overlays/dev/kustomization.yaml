@@ -1,8 +1,7 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-# Sin "namespace:" global a propósito: el RoleBinding de descarga de imagen debe
-# quedarse en workshop-demo-dev (el dueño del ImageStream) y kustomize no debe
-# sobrescribirlo; el resto de recursos toma el namespace destino de la Application.
+# Sin "namespace:" global a propósito: cada recurso toma el namespace destino
+# de la Application y el Namespace del overlay ya trae su nombre propio.
 resources:
   - ../../base
   - namespace-canary-demo-dev.yaml
