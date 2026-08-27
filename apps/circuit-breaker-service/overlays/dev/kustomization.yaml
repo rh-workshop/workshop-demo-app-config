@@ -31,7 +31,7 @@ patches:
 images:
   - name: app-workshop
     newName: company-quay-quay-quay-enterprise.apps.cluster-qthlq.dyn.redhatworkshops.io/company/demo-service
-    digest: sha256:b88648dc00b39091ea04e499ab0cb20eb1ebbb43aea5602f00ef59a8f309355d
+    digest: sha256:2dc7f86aea0c17cc9a2197871fc7f77c59082412eefbefbb717816cddaba8798
 
 labels:
   - pairs:
