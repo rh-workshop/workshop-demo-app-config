@@ -3,6 +3,9 @@
 apiVersion: kuadrant.io/v1
 kind: AuthPolicy
 metadata:
+  annotations:
+    # Los CRDs (Kuadrant, Gateway API) los instala ACM/el operador, no este sync: sin esto el dry-run del arranque en frio invalida la Application entera.
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
   name: circuit-breaker-service
 spec:
   targetRef:
