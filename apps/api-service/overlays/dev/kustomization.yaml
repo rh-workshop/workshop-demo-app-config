@@ -27,7 +27,7 @@ patches:
 # donde el pipeline de CI escribe el digest recién construido. La imagen vive
 # en el registro corporativo (Quay) y se fija SIEMPRE por digest, nunca por tag.
 images:
-- digest: sha256:6cd4388e752b71e1fedd6c625661e9658779af9acdc5587cc43ad98354da61ef
+- digest: sha256:6495de7154a1e789afd352fcbcf80426de42350227a789db8390edd69d5ff082
   name: api-service
   newName: company-quay-quay-quay-enterprise.apps.cluster-qthlq.dyn.redhatworkshops.io/company/api-service
 
