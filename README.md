@@ -25,7 +25,7 @@ comando contra el cluster.
 | Ruta | Contenido |
 |---|---|
 | `apps/demo-service/` | Deployment, Service y ConfigMap de la aplicación, con overlays `dev` y `test` |
-| `apps/canary-service/` | Despliegue canary: dos versiones con reparto de tráfico por pesos en la HTTPRoute |
+| `apps/canary-service/` | Despliegue canary en dos variantes: MANUAL (dos versiones con reparto por pesos en la HTTPRoute) y AUTOMÁTICO (Rollout de Argo Rollouts + AnalysisTemplate que promociona o revierte solo por métricas) |
 | `apps/bluegreen-service/` | Despliegue blue-green: dos versiones con conmutación total de tráfico |
 | `apps/circuit-breaker-service/` | Frontend y backend con DestinationRule de circuit breaker |
 | `policies/` | AuthPolicy y RateLimitPolicy del servicio |
@@ -61,6 +61,13 @@ un generador `git` de directorios:
 - `apps/*/overlays/dev` → una Application por servicio (onda 2).
 - `apps/*/gateway-route/overlays/dev` → una Application por Route del gateway,
   desplegada en `platform-gateway` (onda 1).
+
+Además, el ApplicationSet `workshop-previews-pr` (mismo repositorio de
+plataforma) crea un **preview efímero por cada Pull Request abierto** contra
+este repositorio: despliega `apps/demo-service/overlays/dev` tal como lo deja
+la rama del PR en un namespace propio `demo-service-pr-<n>`, expuesto por el
+gateway en el path `/pr-<n>`. Al cerrar el PR, la Application y su namespace se
+borran solos. Así dos features en paralelo dejan de pisarse el `overlays/dev`.
 
 **Añadir un servicio nuevo** consiste en crear su carpeta
 `apps/<componente>-service/` siguiendo el patrón existente; el ApplicationSet

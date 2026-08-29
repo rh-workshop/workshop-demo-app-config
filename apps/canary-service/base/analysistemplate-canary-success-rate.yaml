@@ -1,0 +1,51 @@
+# AnalysisTemplate del canary automático: las MÉTRICAS que deciden si el
+# Rollout promociona o revierte. Dos guardas sobre Prometheus:
+#   · success-rate — proporción de respuestas no-5xx; por debajo del umbral, se revierte.
+#   · latency-p95  — percentil 95 de latencia; por encima del umbral, se revierte.
+#
+# La dirección apunta al Thanos Querier de la monitorización de OpenShift. OJO:
+# en un cluster real ese endpoint exige TLS y token de ServiceAccount; el ajuste
+# fino de la autenticación (cabecera Authorization con el token del controlador)
+# queda pendiente de validar en vivo — está anotado en el backlog de plataforma.
+apiVersion: argoproj.io/v1alpha1
+kind: AnalysisTemplate
+metadata:
+  annotations:
+    # El CRD AnalysisTemplate lo instala el RolloutManager de la plataforma, no este sync: sin esto el dry-run del arranque en frio invalida la Application entera.
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+  name: canary-success-rate
+spec:
+  args:
+    # Namespace donde corre el servicio: lo inyecta el Rollout (fieldRef), la plantilla no lo fija.
+    - name: namespace
+  metrics:
+    - name: success-rate
+      # Cuatro mediciones cada 30 segundos; UNA sola violación aborta el despliegue.
+      interval: 30s
+      count: 4
+      failureLimit: 1
+      # Sin tráfico (vector vacío) no se castiga al canary; con tráfico, se exige un 95% de éxito.
+      successCondition: len(result) == 0 || result[0] >= 0.95
+      provider:
+        prometheus:
+          # Thanos Querier de la monitorización del cluster (pendiente de validar la autenticación en vivo).
+          address: https://thanos-querier.openshift-monitoring.svc.cluster.local:9091
+          insecure: true
+          query: >-
+            sum(rate(http_requests_total{namespace="{{args.namespace}}",job="canary-service-auto",code!~"5.."}[2m]))
+            /
+            sum(rate(http_requests_total{namespace="{{args.namespace}}",job="canary-service-auto"}[2m]))
+    - name: latency-p95
+      interval: 30s
+      count: 4
+      failureLimit: 1
+      # El percentil 95 debe quedar por debajo de 500 ms; NaN (sin tráfico) no castiga.
+      successCondition: len(result) == 0 || isNaN(result[0]) || result[0] <= 0.5
+      provider:
+        prometheus:
+          # Thanos Querier de la monitorización del cluster (pendiente de validar la autenticación en vivo).
+          address: https://thanos-querier.openshift-monitoring.svc.cluster.local:9091
+          insecure: true
+          query: >-
+            histogram_quantile(0.95,
+            sum(rate(http_request_duration_seconds_bucket{namespace="{{args.namespace}}",job="canary-service-auto"}[2m])) by (le))

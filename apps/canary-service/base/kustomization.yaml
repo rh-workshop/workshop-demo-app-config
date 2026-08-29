@@ -1,9 +1,16 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
+  # Canary MANUAL por pesos de HTTPRoute (material original del workshop): se conserva intacto.
   - deployment-canary-v1-stable.yaml
   - deployment-canary-v2-candidate.yaml
   - service-canary-v1.yaml
   - service-canary-v2.yaml
   - httproute-canary-weighted-split.yaml
   - authpolicy-canary-jwt.yaml
+  # Canary AUTOMÁTICO con Argo Rollouts (promociona o revierte solo por métricas): convive con el manual en /canary-auto.
+  - rollout-canary-auto.yaml
+  - analysistemplate-canary-success-rate.yaml
+  - service-canary-auto.yaml
+  - httproute-canary-auto.yaml
+  - authpolicy-canary-auto-jwt.yaml

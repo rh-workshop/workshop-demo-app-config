@@ -1,0 +1,12 @@
+# En dev el hostname apunta al dominio de apps del cluster de desarrollo.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  annotations:
+    # Los CRDs (Kuadrant, Gateway API) los instala ACM/el operador, no este sync: sin esto el dry-run del arranque en frio invalida la Application entera.
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+  name: canary-service-auto
+spec:
+  hostnames:
+    # Dominio del cluster de laboratorio: al cambiar de cluster hay que actualizarlo aqui.
+    - apis.apps.cluster-qthlq.dyn.redhatworkshops.io

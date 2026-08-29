@@ -1,0 +1,12 @@
+# Service ÚNICO del canary automático: el reparto estable/candidata lo hace el
+# Rollout por réplicas, así que basta un selector por app (sin etiqueta version).
+apiVersion: v1
+kind: Service
+metadata:
+  name: canary-service-auto
+spec:
+  selector:
+    app: canary-service-auto
+  ports:
+    - port: 8080
+      targetPort: 8080

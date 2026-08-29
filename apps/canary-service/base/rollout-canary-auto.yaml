@@ -1,0 +1,109 @@
+# Canary AUTOMÁTICO con Argo Rollouts: complementa (NO sustituye) al canary
+# manual por pesos de HTTPRoute de este mismo servicio, que sigue siendo material
+# del workshop. Aquí el que decide no es una persona editando pesos en Git: el
+# Rollout avanza por pasos y en cada análisis consulta Prometheus (tasa de error,
+# latencia); si las métricas violan el umbral, REVIERTE solo a la versión estable.
+#
+# SIN trafficRouting a propósito: sin un router configurado, Argo Rollouts
+# aproxima el peso por PROPORCIÓN DE RÉPLICAS (setWeight 25 con 4 réplicas = 1
+# pod canary), que es nativo y no requiere plugins. El control fino del peso con
+# Gateway API existe pero exige el plugin community
+# rollouts-plugin-trafficrouter-gatewayapi (binario descargado aparte), fuera de
+# la norma "solo Red Hat" del proyecto — queda documentado en el README.
+#
+# El controlador lo despliega la plataforma (RolloutManager en
+# workshop-demo-platform-config/rollouts/gitops/): el operador OpenShift GitOps
+# ya gestiona Argo Rollouts, no se instala nada nuevo.
+apiVersion: argoproj.io/v1alpha1
+kind: Rollout
+metadata:
+  annotations:
+    # El CRD Rollout lo instala el RolloutManager de la plataforma, no este sync: sin esto el dry-run del arranque en frio invalida la Application entera.
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+  name: canary-service-auto
+  labels:
+    app: canary-service-auto
+spec:
+  # Con 4 réplicas los setWeight 25/50 se traducen en 1 y 2 pods canary exactos.
+  replicas: 4
+  revisionHistoryLimit: 3
+  selector:
+    matchLabels:
+      app: canary-service-auto
+  template:
+    metadata:
+      labels:
+        app: canary-service-auto
+    spec:
+      containers:
+        - name: app
+          image: app-workshop:latest
+          ports:
+            - containerPort: 8080
+          env:
+            # Cambiar APP_VERSION (o la imagen) en Git es lo que dispara un nuevo despliegue canary.
+            - name: APP_VERSION
+              value: "1.0.0-stable"
+            - name: APP_NOMBRE
+              value: canary-service-auto
+            - name: APP_ENTORNO
+              value: dev
+          # Las sondas usan el endpoint de salud de la aplicación.
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+          # Contexto de seguridad restrictivo: sin privilegios, sin escalada y
+          # con el sistema de archivos raíz en solo lectura.
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            capabilities:
+              drop:
+                - ALL
+            seccompProfile:
+              type: RuntimeDefault
+  strategy:
+    canary:
+      steps:
+        # 25% del tráfico (1 de 4 réplicas) a la versión candidata.
+        - setWeight: 25
+        # Pausa corta para que el canary acumule métricas antes del análisis.
+        - pause: {duration: 60s}
+        # La puerta AUTOMÁTICA: si el análisis falla, el Rollout aborta y revierte solo.
+        - analysis:
+            templates:
+              - templateName: canary-success-rate
+            args:
+              # El namespace real lo resuelve el Rollout en tiempo de ejecución: la base sigue siendo agnóstica del entorno.
+              - name: namespace
+                valueFrom:
+                  fieldRef:
+                    fieldPath: metadata.namespace
+        - setWeight: 50
+        - pause: {duration: 60s}
+        # Segundo análisis antes de la promoción completa: el 50% también debe estar sano.
+        - analysis:
+            templates:
+              - templateName: canary-success-rate
+            args:
+              - name: namespace
+                valueFrom:
+                  fieldRef:
+                    fieldPath: metadata.namespace
