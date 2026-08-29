@@ -3,10 +3,20 @@
 #   · success-rate — proporción de respuestas no-5xx; por debajo del umbral, se revierte.
 #   · latency-p95  — percentil 95 de latencia; por encima del umbral, se revierte.
 #
-# La dirección apunta al Thanos Querier de la monitorización de OpenShift. OJO:
-# en un cluster real ese endpoint exige TLS y token de ServiceAccount; el ajuste
-# fino de la autenticación (cabecera Authorization con el token del controlador)
-# queda pendiente de validar en vivo — está anotado en el backlog de plataforma.
+# La dirección apunta al Thanos Querier de la monitorización de OpenShift, que
+# NO es un Prometheus abierto: exige TLS y un Bearer token de ServiceAccount con
+# permiso de lectura de métricas. Sin la cabecera Authorization devuelve 403 y el
+# análisis falla siempre — con failureLimit: 1, eso aborta TODO despliegue canary.
+#
+# El token se monta como Secret (`thanos-querier-token`) y se referencia con
+# `authentication.sigv4`/`headers` según la versión; aquí se usa `headers`, que es
+# lo que soporta el proveedor Prometheus de Argo Rollouts. El Secret lo crea el
+# gobierno de la plataforma (ServiceAccount + ClusterRoleBinding a
+# `cluster-monitoring-view`), NUNCA se versiona su contenido.
+#
+# El certificado del Querier lo firma la CA interna del cluster, así que
+# `insecure: true` evitaría verificarlo; en su lugar se confía en la CA de servicio
+# montada por OpenShift, que es lo correcto para un endpoint interno.
 apiVersion: argoproj.io/v1alpha1
 kind: AnalysisTemplate
 metadata:
@@ -18,6 +28,12 @@ spec:
   args:
     # Namespace donde corre el servicio: lo inyecta el Rollout (fieldRef), la plantilla no lo fija.
     - name: namespace
+    # Token de lectura de métricas: se resuelve del Secret, nunca se escribe aquí.
+    - name: thanos-token
+      valueFrom:
+        secretKeyRef:
+          name: thanos-querier-token
+          key: token
   metrics:
     - name: success-rate
       # Cuatro mediciones cada 30 segundos; UNA sola violación aborta el despliegue.
@@ -28,9 +44,12 @@ spec:
       successCondition: len(result) == 0 || result[0] >= 0.95
       provider:
         prometheus:
-          # Thanos Querier de la monitorización del cluster (pendiente de validar la autenticación en vivo).
+          # Thanos Querier de la monitorización del cluster: exige Bearer token.
           address: https://thanos-querier.openshift-monitoring.svc.cluster.local:9091
-          insecure: true
+          headers:
+            # Token del ServiceAccount con cluster-monitoring-view; sin él, 403.
+            - key: Authorization
+              value: "Bearer {{args.thanos-token}}"
           query: >-
             sum(rate(http_requests_total{namespace="{{args.namespace}}",job="canary-service-auto",code!~"5.."}[2m]))
             /
@@ -43,9 +62,12 @@ spec:
       successCondition: len(result) == 0 || isNaN(result[0]) || result[0] <= 0.5
       provider:
         prometheus:
-          # Thanos Querier de la monitorización del cluster (pendiente de validar la autenticación en vivo).
+          # Thanos Querier de la monitorización del cluster: exige Bearer token.
           address: https://thanos-querier.openshift-monitoring.svc.cluster.local:9091
-          insecure: true
+          headers:
+            # Token del ServiceAccount con cluster-monitoring-view; sin él, 403.
+            - key: Authorization
+              value: "Bearer {{args.thanos-token}}"
           query: >-
             histogram_quantile(0.95,
             sum(rate(http_request_duration_seconds_bucket{namespace="{{args.namespace}}",job="canary-service-auto"}[2m])) by (le))

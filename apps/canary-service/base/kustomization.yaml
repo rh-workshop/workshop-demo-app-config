@@ -11,6 +11,8 @@ resources:
   # Canary AUTOMÁTICO con Argo Rollouts (promociona o revierte solo por métricas): convive con el manual en /canary-auto.
   - rollout-canary-auto.yaml
   - analysistemplate-canary-success-rate.yaml
+  # Identidad, permiso y token con los que el análisis lee las métricas del Thanos Querier.
+  - serviceaccount-thanos-reader.yaml
   - service-canary-auto.yaml
   - httproute-canary-auto.yaml
   - authpolicy-canary-auto-jwt.yaml
