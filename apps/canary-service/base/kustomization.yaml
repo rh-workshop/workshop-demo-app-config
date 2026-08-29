@@ -11,8 +11,12 @@ resources:
   # Canary AUTOMÁTICO con Argo Rollouts (promociona o revierte solo por métricas): convive con el manual en /canary-auto.
   - rollout-canary-auto.yaml
   - analysistemplate-canary-success-rate.yaml
-  # Identidad, permiso y token con los que el análisis lee las métricas del Thanos Querier.
-  - serviceaccount-thanos-reader.yaml
+  # La identidad con la que el análisis lee las métricas (ServiceAccount +
+  # ClusterRoleBinding a cluster-monitoring-view + token) YA NO SE DECLARA AQUÍ:
+  # un ClusterRoleBinding es de ámbito de cluster y permitirlo desde este repo
+  # convertía cualquier commit en cluster-admin efectivo. Vive en el repo de
+  # plataforma, en namespace-governance/gitops/base/namespaces/canary-demo-dev/.
+  # - serviceaccount-thanos-reader.yaml
   - service-canary-auto.yaml
   - httproute-canary-auto.yaml
   - authpolicy-canary-auto-jwt.yaml
