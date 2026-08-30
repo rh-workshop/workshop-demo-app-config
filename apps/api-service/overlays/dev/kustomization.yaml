@@ -29,7 +29,7 @@ patches:
 images:
 - digest: sha256:6495de7154a1e789afd352fcbcf80426de42350227a789db8390edd69d5ff082
   name: api-service
-  newName: company-quay-quay-quay-enterprise.apps.cluster-qthlq.dyn.redhatworkshops.io/company/api-service
+  newName: company-quay-quay-quay-enterprise.apps.ocp.hq2ss.sandbox3270.opentlc.com/company-dev/api-service
 
 labels:
 - pairs:

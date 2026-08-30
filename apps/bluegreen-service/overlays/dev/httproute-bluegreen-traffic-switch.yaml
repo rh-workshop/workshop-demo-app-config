@@ -8,4 +8,4 @@ metadata:
 spec:
   hostnames:
     # Dominio del cluster de laboratorio: al cambiar de cluster hay que actualizarlo aqui.
-    - apis.apps.cluster-qthlq.dyn.redhatworkshops.io
+    - apis.apps.ocp.hq2ss.sandbox3270.opentlc.com

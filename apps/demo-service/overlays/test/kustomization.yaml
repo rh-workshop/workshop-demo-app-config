@@ -12,9 +12,11 @@ resources:
 # Misma regla que en dev: la imagen vive en Quay y se fija por DIGEST, nunca por
 # tag; el namespace descarga con su pull secret (quay-pull-credentials).
 images:
+  # A test la imagen llega SOLO por promoción (pipeline promote-image), que fija
+  # aquí el digest copiado desde company-dev: por eso nace como placeholder.
   - name: app-workshop
-    newName: company-quay-quay-quay-enterprise.apps.cluster-qthlq.dyn.redhatworkshops.io/company/demo-service
-    digest: sha256:2dc7f86aea0c17cc9a2197871fc7f77c59082412eefbefbb717816cddaba8798
+    newName: CHANGE_ME_QUAY_HOST/company-test/demo-service
+    digest: sha256:CHANGE_ME_DIGEST
 
 patches:
   - path: configmap-demo-service-env-config.yaml
