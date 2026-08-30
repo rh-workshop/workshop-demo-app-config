@@ -1,0 +1,35 @@
+# Overlay del entorno de PRODUCCION.
+#
+# A este overlay NO llega un build: llega una PROMOCION. El pipeline
+# promote-image copia el manifiesto desde company-test conservando el digest y
+# escribe aquí ese mismo digest, de modo que lo validado en pruebas es byte a
+# byte lo que corre en producción. Por eso la organización es company-prod,
+# donde el robot del CI NO tiene permiso de escritura.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: workshop-demo-prod
+
+resources:
+  - ../../base
+  - namespace-workshop-demo-prod.yaml
+  - httproute-demo-service.yaml
+
+# La imagen se fija por DIGEST, nunca por tag: un tag puede reapuntarse después
+# y rompería la cadena de custodia que la promoción existe para garantizar.
+images:
+  - name: app-workshop
+    newName: CHANGE_ME_QUAY_HOST/company-prod/demo-service
+    digest: sha256:CHANGE_ME_DIGEST
+
+patches:
+  - path: configmap-demo-service-env-config.yaml
+    target:
+      kind: ConfigMap
+      name: demo-service-config
+  # Producción ejecuta tres réplicas: el mismo "qué" de la base con un "cuánto"
+  # mayor, que es el papel de un overlay.
+  - path: deployment-demo-service-three-replicas.yaml
+    target:
+      kind: Deployment
+      name: demo-service

@@ -1,0 +1,32 @@
+# Exposición del servicio de CONTINGENCIA a través del gateway compartido.
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  annotations:
+    # Los CRDs (Kuadrant, Gateway API) los instala ACM/el operador, no este sync: sin esto el dry-run del arranque en frio invalida la Application entera.
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+  name: demo-service
+spec:
+  parentRefs:
+    - name: shared-gateway
+      namespace: platform-gateway
+  hostnames:
+    # Sustituir por el dominio de apps del cluster donde corre CONTINGENCIA.
+    - demo-contingencia.CHANGE_ME_BASE_DOMAIN
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /demo
+      filters:
+        - type: URLRewrite
+          urlRewrite:
+            # El servicio sirve en la raiz: se le quita el prefijo del path con
+            # el que se le distingue en el dominio compartido. Sin esto recibiria
+            # /demo/loquesea y responderia 404.
+            path:
+              type: ReplacePrefixMatch
+              replacePrefixMatch: /
+      backendRefs:
+        - name: demo-service
+          port: 8080

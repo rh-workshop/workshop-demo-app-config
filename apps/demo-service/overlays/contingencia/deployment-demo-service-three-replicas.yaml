@@ -1,0 +1,7 @@
+# Parche estratégico: contingencia dimensiona igual que producción.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: demo-service
+spec:
+  replicas: 3

@@ -1,0 +1,36 @@
+# Overlay del sitio de CONTINGENCIA.
+#
+# Último eslabón de la cadena de promoción: dev -> test -> prod -> contingencia.
+# Igual que producción, aquí NO llega un build sino una PROMOCION, y por eso la
+# organización es company-contingencia, donde el robot del CI no puede escribir.
+#
+# El digest debe ser el MISMO que corre en producción: si difiere, el sitio de
+# contingencia no serviría lo que sirve producción, que es justo lo que un
+# failover tiene que garantizar.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: workshop-demo-contingencia
+
+resources:
+  - ../../base
+  - namespace-workshop-demo-contingencia.yaml
+  - httproute-demo-service.yaml
+
+# La imagen se fija por DIGEST, nunca por tag: un tag puede reapuntarse después
+# y rompería la cadena de custodia que la promoción existe para garantizar.
+images:
+  - name: app-workshop
+    newName: CHANGE_ME_QUAY_HOST/company-contingencia/demo-service
+    digest: sha256:CHANGE_ME_DIGEST
+
+patches:
+  - path: configmap-demo-service-env-config.yaml
+    target:
+      kind: ConfigMap
+      name: demo-service-config
+  # Contingencia dimensiona como producción: debe poder absorber su carga.
+  - path: deployment-demo-service-three-replicas.yaml
+    target:
+      kind: Deployment
+      name: demo-service
