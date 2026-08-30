@@ -7,6 +7,11 @@
 # El digest debe ser el MISMO que corre en producción: si difiere, el sitio de
 # contingencia no serviría lo que sirve producción, que es justo lo que un
 # failover tiene que garantizar.
+#
+# Por el mismo motivo el HTTPRoute publica el hostname de PRODUCCION, no uno
+# propio: conmutar es reapuntar el DNS a este gateway, sin que quien consume la
+# API cambie nada. Un `demo-contingencia.<dominio>` obligaría a reconfigurar al
+# cliente para conmutar, y eso deja de ser un failover.
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 

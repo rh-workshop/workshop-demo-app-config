@@ -1,4 +1,8 @@
-# Exposición del servicio de CONTINGENCIA a través del gateway compartido.
+# Exposición del servicio en el sitio de CONTINGENCIA.
+#
+# Es la MISMA ruta que en producción, sobre el gateway compartido del cluster de
+# contingencia: mismo hostname, mismo path y mismo backend. La diferencia entre
+# los dos sitios no está aquí, está en a cuál apunta el DNS.
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
@@ -11,8 +15,13 @@ spec:
     - name: shared-gateway
       namespace: platform-gateway
   hostnames:
-    # Sustituir por el dominio de apps del cluster donde corre CONTINGENCIA.
-    - demo-contingencia.CHANGE_ME_BASE_DOMAIN
+    # EL MISMO HOSTNAME QUE PRODUCCION, a propósito. El sitio de contingencia
+    # existe para sustituir a producción sin que el cliente cambie nada: si
+    # respondiera en `demo-contingencia.<dominio>`, conmutar exigiría reconfigurar
+    # a quien consume la API, y eso no es un failover. Lo que se conmuta es el DNS
+    # (o el balanceador global), que reapunta ESTE nombre al gateway del sitio
+    # activo. Por eso el dominio NO lleva el ambiente en el nombre.
+    - demo-prod.CHANGE_ME_BASE_DOMAIN
   rules:
     - matches:
         - path:
