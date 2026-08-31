@@ -24,7 +24,7 @@ comando contra el cluster.
 
 | Ruta | Contenido |
 |---|---|
-| `apps/demo-service/` | Deployment, Service y ConfigMap de la aplicación, con overlays `dev` y `test` |
+| `apps/demo-service/` | Deployment, Service y ConfigMap de la aplicación, con overlays `dev`, `test`, `prod` y `contingencia` (la cadena de promoción completa) |
 | `apps/canary-service/` | Despliegue canary en dos variantes: MANUAL (dos versiones con reparto por pesos en la HTTPRoute) y AUTOMÁTICO (Rollout de Argo Rollouts + AnalysisTemplate que promociona o revierte solo por métricas) |
 | `apps/bluegreen-service/` | Despliegue blue-green: dos versiones con conmutación total de tráfico |
 | `apps/circuit-breaker-service/` | Frontend y backend con DestinationRule de circuit breaker |
@@ -43,6 +43,14 @@ comando contra el cluster.
 > RBAC del controller) tampoco vive aquí: la aplica el **bootstrap** del cluster
 > (`workshop-demo-platform-config/bootstrap/`), porque lo que Argo necesita para
 > existir no lo gestiona Argo.
+
+> **Solo `demo-service` recorre los cuatro ambientes** (dev → test → prod →
+> contingencia). Los otros cuatro servicios (`api-service`, `canary-service`,
+> `bluegreen-service`, `circuit-breaker-service`) viven SOLO en `dev` **por
+> decisión, no por olvido**: existen para enseñar un patrón (API management,
+> canary, blue-green, circuit breaker), no la promoción entre ambientes. Un
+> servicio entra en un ambiente creando `apps/<servicio>/overlays/<ambiente>`:
+> los ApplicationSets `workshop-services-<ambiente>` lo descubren solos.
 
 Cada servicio de `apps/` sigue el mismo patrón: `base/` + `overlays/<entorno>/`.
 Las imágenes viven en el registro corporativo (Quay) y los overlays las fijan
