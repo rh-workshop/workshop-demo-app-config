@@ -44,6 +44,11 @@ spec:
       value: demo-service
     - name: image-digest
       value: CHANGE_ME_DIGEST
+    # Tag INMUTABLE con el que la imagen aparece en la organizacion destino: el
+    # git-<sha> que genero el CI. No es la identidad (esa es el digest), sino la
+    # etiqueta legible que permite rastrear de que commit salio el artefacto.
+    - name: image-tag
+      value: CHANGE_ME_TAG
     - name: target-overlay-path
       value: apps/demo-service/overlays/prod
     - name: verify-signature
