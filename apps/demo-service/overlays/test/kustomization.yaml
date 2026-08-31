@@ -5,27 +5,27 @@ kind: Kustomization
 namespace: workshop-demo-test
 
 resources:
-  - ../../base
-  - namespace-workshop-demo-test.yaml
-  - httproute-demo-service.yaml
+- ../../base
+- namespace-workshop-demo-test.yaml
+- httproute-demo-service.yaml
 
 # Misma regla que en dev: la imagen vive en Quay y se fija por DIGEST, nunca por
 # tag; el namespace descarga con su pull secret (quay-pull-credentials).
-images:
   # A test la imagen llega SOLO por promoción (pipeline promote-image), que fija
   # aquí el digest copiado desde company-dev: por eso nace como placeholder.
-  - name: app-workshop
-    newName: CHANGE_ME_QUAY_HOST/company-test/demo-service
-    digest: sha256:CHANGE_ME_DIGEST
+images:
+- digest: sha256:6bf6aa621b1e8e1e144a342e63d3dc7316bcfe9c637239ea441df61a9725e509
+  name: app-workshop
+  newName: company-quay-quay-quay-enterprise.apps.ocp.hq2ss.sandbox3270.opentlc.com/company-test/demo-service
 
-patches:
-  - path: configmap-demo-service-env-config.yaml
-    target:
-      kind: ConfigMap
-      name: demo-service-config
   # A diferencia de desarrollo, pruebas ejecuta dos réplicas: el mismo "qué"
   # de la base con un "cuánto" distinto, que es el papel de un overlay.
-  - path: deployment-demo-service-two-replicas.yaml
-    target:
-      kind: Deployment
-      name: demo-service
+patches:
+- path: configmap-demo-service-env-config.yaml
+  target:
+    kind: ConfigMap
+    name: demo-service-config
+- path: deployment-demo-service-two-replicas.yaml
+  target:
+    kind: Deployment
+    name: demo-service
