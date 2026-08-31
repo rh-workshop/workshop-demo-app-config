@@ -30,6 +30,8 @@ images:
 - digest: sha256:6495de7154a1e789afd352fcbcf80426de42350227a789db8390edd69d5ff082
   name: api-service
   newName: company-quay-quay-quay-enterprise.apps.ocp.hq2ss.sandbox3270.opentlc.com/company-dev/api-service
+- digest: sha256:34a865591291b58fbae5d5aa77dfef64846c8233de89a47a5d1ee8ebc098668e
+  name: app-workshop
 
 labels:
 - pairs:
