@@ -1,0 +1,76 @@
+# PROMOCION test -> prod, disparada por Pipelines as Code.
+#
+# LA DIFERENCIA CON test ESTA EN UNA LINEA: require-release-provenance = true.
+# A produccion no entra cualquier imagen que haya pasado por test, sino solo la
+# que procede de un commit en `main` con tag semver — GitFlow aplicado de
+# verdad: lo que se despliega en prod corresponde a una version declarada, no a
+# un commit suelto de una rama de trabajo.
+#
+# ORIGEN test, NO dev: la imagen recorre la cadena completa dev -> test -> prod
+# conservando el MISMO digest. Saltarse test dejaria en produccion un artefacto
+# que nadie valido, aunque estuviera firmado.
+#
+# La imagen no se reconstruye en ningun punto: se copia. Por eso la firma que se
+# verifica aqui es la misma que se genero en el CI, y el SBOM atestado sigue
+# correspondiendo al binario que se despliega.
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  name: promote-demo-service-prod
+  annotations:
+    # Solo Pull Request hacia `main`: es la revision humana previa a produccion.
+    pipelinesascode.tekton.dev/on-event: "[pull_request]"
+    pipelinesascode.tekton.dev/on-target-branch: "[main]"
+    pipelinesascode.tekton.dev/max-keep-runs: "10"
+spec:
+  pipelineRef:
+    resolver: cluster
+    params:
+      - {name: kind, value: pipeline}
+      - {name: name, value: promote-image}
+      - {name: namespace, value: workshop-demo-dev}
+  taskRunTemplate:
+    serviceAccountName: builder
+  timeouts:
+    pipeline: 1h0m0s
+  params:
+    - name: registry-host
+      value: company-quay-quay-quay-enterprise.apps.ocp.hq2ss.sandbox3270.opentlc.com
+    - name: source-org
+      value: company-test
+    - name: target-org
+      value: company-prod
+    - name: image-name
+      value: demo-service
+    - name: image-digest
+      value: CHANGE_ME_DIGEST
+    - name: target-overlay-path
+      value: apps/demo-service/overlays/prod
+    - name: verify-signature
+      value: "true"
+    # LA PUERTA A PRODUCCION: exige que el commit de origen este en main y lleve
+    # tag semver. Sin esto, prod aceptaria cualquier candidato de test.
+    - name: require-release-provenance
+      value: "true"
+    - name: argocd-application
+      value: app-demo-service-prod
+  workspaces:
+    - name: config
+      volumeClaimTemplate:
+        spec:
+          accessModes: [ReadWriteOnce]
+          resources:
+            requests:
+              storage: 1Gi
+    - name: git-credentials
+      secret:
+        secretName: git-credentials
+    - name: source-registry-credentials
+      secret:
+        secretName: quay-push-credentials
+    - name: promotion-credentials
+      secret:
+        secretName: quay-promotion-credentials
+    - name: signing-key
+      secret:
+        secretName: cosign-signing-key

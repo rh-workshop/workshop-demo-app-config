@@ -1,0 +1,89 @@
+# PROMOCION dev -> test, disparada por Pipelines as Code.
+#
+# QUE HACE ESTE FICHERO AQUI. La promocion no construye nada: mueve una imagen
+# YA construida y firmada entre organizaciones del registro, y escribe su digest
+# en el overlay del ambiente destino. Ese overlay vive en ESTE repositorio, asi
+# que es aqui donde se declara que la promocion existe y como se dispara.
+#
+# COMO SE DISPARA: al abrir un Pull Request hacia la rama `test`. Es la barrera
+# de revision hacia los ambientes superiores que recomienda Argo CD — el digest
+# no entra en test porque alguien ejecute un comando, sino porque un cambio
+# revisado lo aprueba. Ese PR lo puede abrir la rama `ci/promote-*` que el CI
+# publica cuando corre en modo `pr`.
+#
+# QUE NO HACE: no vuelve a construir ni re-etiqueta. El digest que sale de dev
+# es byte a byte el que entra en test; de lo contrario la firma dejaria de
+# corresponder a lo que se validó.
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  name: promote-demo-service-test
+  annotations:
+    # Solo Pull Request: a un ambiente superior no se llega con un push directo.
+    pipelinesascode.tekton.dev/on-event: "[pull_request]"
+    pipelinesascode.tekton.dev/on-target-branch: "[test]"
+    pipelinesascode.tekton.dev/max-keep-runs: "10"
+spec:
+  pipelineRef:
+    # El Pipeline lo gobierna la plataforma y vive en el cluster, no en este repo.
+    resolver: cluster
+    params:
+      - {name: kind, value: pipeline}
+      - {name: name, value: promote-image}
+      - {name: namespace, value: workshop-demo-dev}
+  taskRunTemplate:
+    serviceAccountName: builder
+  timeouts:
+    pipeline: 1h0m0s
+  params:
+    - name: registry-host
+      value: company-quay-quay-quay-enterprise.apps.ocp.hq2ss.sandbox3270.opentlc.com
+    # De donde sale la imagen y a donde va. Nunca se renombra: mismo repositorio
+    # en ambas organizaciones, para que promocionar sea copiar y no reconstruir.
+    - name: source-org
+      value: company-dev
+    - name: target-org
+      value: company-test
+    - name: image-name
+      value: demo-service
+    # El digest concreto que se promociona. Lo rellena quien abre el PR con el
+    # valor que hoy corre en dev (o la rama ci/promote-* que publica el CI).
+    - name: image-digest
+      value: sha256:6bf6aa621b1e8e1e144a342e63d3dc7316bcfe9c637239ea441df61a9725e509
+    - name: target-overlay-path
+      value: apps/demo-service/overlays/test
+    # Firma SIEMPRE verificada: si la imagen no esta firmada por la llave de la
+    # plataforma, la promocion se detiene aqui.
+    - name: verify-signature
+      value: "true"
+    # Procedencia de release NO se exige todavia: test es donde se valida un
+    # candidato, y exigir tag semver aqui impediria probar antes de etiquetar.
+    # Hacia prod si se exige (ver pipelinerun-promote-prod.yaml).
+    - name: require-release-provenance
+      value: "false"
+    - name: argocd-application
+      value: app-demo-service-test
+  workspaces:
+    - name: config
+      volumeClaimTemplate:
+        spec:
+          accessModes: [ReadWriteOnce]
+          resources:
+            requests:
+              storage: 1Gi
+    - name: git-credentials
+      secret:
+        secretName: git-credentials
+    # Lectura del origen: la credencial del ambiente de partida.
+    - name: source-registry-credentials
+      secret:
+        secretName: quay-push-credentials
+    # Escritura en el destino: credencial SEPARADA del CI, con el robot que es
+    # la unica identidad autorizada a publicar en los ambientes controlados.
+    - name: promotion-credentials
+      secret:
+        secretName: quay-promotion-credentials
+    # Solo la clave PUBLICA hace falta para verificar; la privada no vive aqui.
+    - name: signing-key
+      secret:
+        secretName: cosign-signing-key
