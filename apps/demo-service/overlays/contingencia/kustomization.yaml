@@ -26,7 +26,7 @@ resources:
 # y rompería la cadena de custodia que la promoción existe para garantizar.
 images:
   - name: app-workshop
-    newName: CHANGE_ME_QUAY_HOST/company-contingencia/demo-service
+    newName: company-quay-quay-quay-enterprise.apps.ocp.hq2ss.sandbox3270.opentlc.com/company-contingencia/demo-service
     digest: sha256:CHANGE_ME_DIGEST
 
 patches:
