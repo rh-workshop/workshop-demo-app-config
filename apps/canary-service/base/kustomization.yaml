@@ -11,9 +11,6 @@ resources:
   # Canary AUTOMÁTICO con Argo Rollouts (promociona o revierte solo por métricas): convive con el manual en /canary-auto.
   - rollout-canary-auto.yaml
   - analysistemplate-canary-success-rate.yaml
-  # Identidad de solo lectura con la que el analisis consulta las metricas. Vive
-  # aqui y no en el gobierno de namespaces porque solo la usa este AnalysisTemplate.
-  - serviceaccount-thanos-reader.yaml
   # La identidad con la que el análisis lee las métricas (ServiceAccount +
   # ClusterRoleBinding a cluster-monitoring-view + token) YA NO SE DECLARA AQUÍ:
   # un ClusterRoleBinding es de ámbito de cluster y permitirlo desde este repo
