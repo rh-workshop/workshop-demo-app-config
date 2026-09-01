@@ -1,0 +1,60 @@
+# service2-backend. El circuit breaker se demuestra con DOS servicios: uno llama al otro y
+# la DestinationRule vigila esa llamada. Con uno solo el corte no se aprecia,
+# porque maxEjectionPercent impide expulsar la unica replica disponible.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: service2-backend
+  labels:
+    app: service2-backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: service2-backend
+  template:
+    metadata:
+      labels:
+        app: service2-backend
+      annotations:
+        # El sidecar de Istio es quien aplica la DestinationRule.
+        sidecar.istio.io/inject: "true"
+    spec:
+      containers:
+        - name: app
+          image: app-workshop:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: APP_VERSION
+              value: "1.0.0"
+            - name: APP_NOMBRE
+              value: service2-backend
+            - name: APP_ENTORNO
+              value: dev
+          # Solo sonda de vida: la readiness se omite A PROPOSITO. Quien debe
+          # expulsar la instancia que falla es Envoy (outlierDetection de la
+          # DestinationRule), no kubelet; con readinessProbe el pod saldria del
+          # Endpoint antes y no se veria el corte del sidecar.
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          resources:
+            requests:
+              cpu: 10m
+              memory: 32Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            capabilities:
+              drop:
+                - ALL
+            seccompProfile:
+              type: RuntimeDefault

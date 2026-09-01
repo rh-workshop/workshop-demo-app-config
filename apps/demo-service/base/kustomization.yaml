@@ -1,0 +1,20 @@
+# Base común del servicio de demostración: el "qué" se despliega.
+# El "dónde" y el "cuánto" los deciden los overlays de cada entorno.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - deployment-demo-service.yaml
+  - service-demo-service.yaml
+  - configmap-demo-service-env-config.yaml
+  - authpolicy-demo-service-jwt.yaml
+  - ratelimitpolicy-demo-service-per-client.yaml
+
+# Etiquetas comunes a todos los recursos de la base.
+labels:
+  - includeSelectors: true
+    pairs:
+      app.kubernetes.io/name: demo-service
+  - includeSelectors: false
+    pairs:
+      app.kubernetes.io/part-of: workshop-gitops

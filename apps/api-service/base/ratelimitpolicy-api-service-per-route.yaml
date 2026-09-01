@@ -1,0 +1,44 @@
+# RateLimitPolicy POR RUTA de la API de negocio — el motivo didáctico de esta
+# aplicación: una MISMA API con límites distintos según la operación.
+#
+#   · Las lecturas (GET) llevan un límite generoso: consultar cuentas es barato.
+#   · La escritura (POST /api/v1/payments) lleva un límite restrictivo: crear
+#     pagos es la operación cara y sensible, y es la primera que se protege.
+#
+# Cada límite discrimina por método con un predicado CEL ("when"), y cuenta por
+# IDENTIDAD (claim azp expuesto por la AuthPolicy como clientid), no por
+# dirección de origen: "source.address" incluye el puerto efímero de cada
+# conexión, de modo que cada petición contaría como un origen distinto y el
+# límite nunca llegaría a dispararse.
+#
+# Comprobación esperada: con el mismo token, el POST responde 429 a partir de la
+# petición número 4 dentro de la ventana, mientras los GET siguen en 200.
+apiVersion: kuadrant.io/v1
+kind: RateLimitPolicy
+metadata:
+  annotations:
+    # Los CRDs (Kuadrant, Gateway API) los instala ACM/el operador, no este sync: sin esto el dry-run del arranque en frio invalida la Application entera.
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+  name: api-service
+spec:
+  targetRef:
+    group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    name: api-service
+  limits:
+    lecturas-por-identidad:
+      rates:
+        - limit: 30
+          window: 60s
+      when:
+        - predicate: request.method == 'GET'
+      counters:
+        - expression: auth.identity.clientid
+    escrituras-por-identidad:
+      rates:
+        - limit: 3
+          window: 60s
+      when:
+        - predicate: request.method == 'POST'
+      counters:
+        - expression: auth.identity.clientid

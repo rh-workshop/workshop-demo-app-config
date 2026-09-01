@@ -1,0 +1,20 @@
+# Namespace del entorno de desarrollo.
+#
+# Las DOS etiquetas siguientes son imprescindibles para que el servicio quede
+# expuesto por el gateway compartido:
+#   · shared-gateway-access: el listener del Gateway solo admite rutas de los
+#     namespaces que la llevan (allowedRoutes con selector de etiquetas).
+#   · istio-discovery: sin ella istiod no descubre el namespace y la ruta queda
+#     con "attachedRoutes: 0" aunque el HTTPRoute parezca correcto.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: workshop-demo-dev
+  labels:
+    # Autoriza al controlador de Argo CD a gestionar recursos en este namespace.
+    # Sin esta etiqueta, Argo CD puede leer pero no crear: la sincronización
+    # falla con "forbidden" al intentar crear el Deployment o el Service.
+    argocd.argoproj.io/managed-by: openshift-gitops
+    shared-gateway-access: "true"
+    istio-discovery: enabled
+    app.kubernetes.io/part-of: workshop-gitops

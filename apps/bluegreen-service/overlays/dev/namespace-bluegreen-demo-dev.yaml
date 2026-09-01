@@ -1,0 +1,12 @@
+# El namespace necesita DOS labels para que el Gateway compartido admita sus
+# rutas: shared-gateway-access (el listener las acepta) e istio-discovery (istiod
+# descubre el namespace). Sin la segunda, attachedRoutes queda en 0.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: bluegreen-demo-dev
+  labels:
+    # Cede el namespace a la instancia central de Argo CD (RBAC del operador GitOps).
+    argocd.argoproj.io/managed-by: openshift-gitops
+    shared-gateway-access: "true"
+    istio-discovery: enabled

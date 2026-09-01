@@ -1,0 +1,56 @@
+# AuthPolicy del servicio de demostración.
+#
+# Se declara sobre el HTTPRoute de la aplicación y, por tanto, SUSTITUYE a la
+# política por defecto del gateway para esta ruta concreta. Es el patrón normal:
+# la plataforma fija un mínimo seguro y cada API lo afina.
+#
+# Comprobación esperada: sin cabecera Authorization -> 401; con un token válido
+# emitido por el realm de confianza -> 200.
+apiVersion: kuadrant.io/v1
+kind: AuthPolicy
+metadata:
+  annotations:
+    # Los CRDs (Kuadrant, Gateway API) los instala ACM/el operador, no este sync: sin esto el dry-run del arranque en frio invalida la Application entera.
+    argocd.argoproj.io/sync-options: SkipDryRunOnMissingResource=true
+  name: demo-service
+spec:
+  targetRef:
+    group: gateway.networking.k8s.io
+    kind: HTTPRoute
+    name: demo-service
+  rules:
+    authentication:
+      token-valido:
+        jwt:
+          # Sustituir por el issuer del Keycloak del cluster (valor genérico de la base; se ajusta por overlay): https://sso.apps.<cluster>.<dominio-base>/realms/workshop
+          issuerUrl: https://sso.apps.cluster.ejemplo.com/realms/workshop
+        credentials:
+          authorizationHeader:
+            prefix: Bearer
+    response:
+      success:
+        # "headers" propaga la identidad al servicio de backend, para que la
+        # aplicación sepa quién llama sin tener que validar el token otra vez.
+        headers:
+          x-identidad:
+            json:
+              properties:
+                sujeto:
+                  selector: auth.identity.sub
+                cliente:
+                  selector: auth.identity.azp
+        # "filters" publica la identidad en los metadatos dinámicos del gateway.
+        # Es el canal que lee la RateLimitPolicy. OJO: el nombre del filtro DEBE
+        # ser "identity" — el wasm-shim resuelve el namespace CEL "auth.<filtro>"
+        # con el nombre literal del filtro, así que "auth.identity.clientid" solo
+        # existe si el filtro se llama "identity". Con otro nombre (p. ej.
+        # "identidad") el contador falla con NoSuchKey("identity") y el 429
+        # nunca dispara aunque ambas políticas figuren como Enforced.
+        filters:
+          identity:
+            json:
+              properties:
+                clientid:
+                  selector: auth.identity.azp
+                sub:
+                  selector: auth.identity.sub

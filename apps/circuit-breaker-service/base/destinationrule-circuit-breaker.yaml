@@ -1,0 +1,33 @@
+# El corazon del circuit breaker: una DestinationRule de Istio. La aplica el
+# sidecar Envoy de service1-frontend sobre sus llamadas a service2-backend.
+#
+# OJO: esto NO es Connectivity Link. La DestinationRule la sirve OpenShift
+# Service Mesh, un operador distinto. Connectivity Link gobierna el BORDE (quien
+# entra, cuanto consume); Service Mesh gobierna la resiliencia ENTRE servicios.
+#
+# connectionPool = el "breaker": limita conexiones y peticiones concurrentes. Al
+# superarlas, Envoy responde 503 en vez de saturar el backend (circuito abierto).
+# outlierDetection = expulsa del balanceo la instancia que devuelve 5xx repetidos,
+# para no seguir mandandole trafico (deteccion de outliers / ejection).
+apiVersion: networking.istio.io/v1
+kind: DestinationRule
+metadata:
+  name: service2-backend
+spec:
+  # Se vigila al servicio LLAMADO, no al que llama. El nombre corto basta: el
+  # namespace lo resuelve el propio Istio, y asi la base no fija un entorno.
+  host: service2-backend
+  trafficPolicy:
+    connectionPool:
+      tcp:
+        maxConnections: 5
+      http:
+        http1MaxPendingRequests: 5
+        maxRequestsPerConnection: 10
+    outlierDetection:
+      # 3 errores 5xx consecutivos -> expulsa la instancia 30s.
+      consecutive5xxErrors: 3
+      interval: 10s
+      baseEjectionTime: 30s
+      # Con 2 replicas, el 50% permite expulsar una y seguir con la otra.
+      maxEjectionPercent: 50
