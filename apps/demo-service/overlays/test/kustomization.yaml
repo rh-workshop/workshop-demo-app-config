@@ -15,8 +15,8 @@ images:
   # A test la imagen llega SOLO por promoción (pipeline promote-image), que fija
   # aquí el digest copiado desde company-dev: por eso nace como placeholder.
   - name: app-workshop
-    newName: CHANGE_ME_QUAY_HOST/company-test/demo-service
-    digest: sha256:CHANGE_ME_DIGEST
+    newName: company-quay-quay-quay-enterprise.apps.ocp.hq2ss.sandbox3270.opentlc.com/company-test/demo-service
+    digest: sha256:6bf6aa621b1e8e1e144a342e63d3dc7316bcfe9c637239ea441df61a9725e509
 
 patches:
   - path: configmap-demo-service-env-config.yaml
