@@ -1,9 +1,0 @@
-# Valores de configuración propios del entorno de desarrollo.
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: demo-service-config
-data:
-  APP_VERSION: "1.0.0"
-  APP_ENTORNO: "dev"
-  APP_MENSAJE: "Servicio de demostración — entorno de desarrollo"

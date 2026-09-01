@@ -21,7 +21,7 @@ spec:
     # a quien consume la API, y eso no es un failover. Lo que se conmuta es el DNS
     # (o el balanceador global), que reapunta ESTE nombre al gateway del sitio
     # activo. Por eso el dominio NO lleva el ambiente en el nombre.
-    - demo-prod.CHANGE_ME_BASE_DOMAIN
+    - demo-prod.apps.ocp.2rndh.sandbox213.opentlc.com
   rules:
     - matches:
         - path:

@@ -12,7 +12,7 @@ spec:
       namespace: platform-gateway
   hostnames:
     # Sustituir por el dominio del cluster donde corre TEST (en este workshop, el de DESARROLLO): apps.<cluster-dev>.<dominio-base>
-    - demo-test.CHANGE_ME_BASE_DOMAIN
+    - demo-test.apps.ocp.zrnk2.sandbox1444.opentlc.com
   rules:
     - matches:
         - path:

@@ -12,7 +12,7 @@ spec:
       namespace: platform-gateway
   hostnames:
     # Sustituir por el dominio de apps del cluster donde corre PRODUCCION.
-    - demo-prod.CHANGE_ME_BASE_DOMAIN
+    - demo-prod.apps.ocp.2rndh.sandbox213.opentlc.com
   rules:
     - matches:
         - path:
