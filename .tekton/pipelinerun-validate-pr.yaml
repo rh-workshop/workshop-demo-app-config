@@ -1,0 +1,47 @@
+# VALIDACION de cada Pull Request a este repositorio.
+#
+# Corre antes que cualquier otra cosa y antes de que un humano lea el cambio: lo
+# que comprueba es mecanico -- que los overlays rendericen, que el apiserver los
+# acepte, que ningun marcador CHANGE_ME llegue a un ambiente real, que los kinds
+# quepan en el AppProject y que ningun Role conceda comodines.
+#
+# POR QUE ESTA AQUI: cada uno de esos controles corresponde a un defecto que ya
+# llego a los clusters desde este repositorio. El detalle, en la cabecera de la
+# Task manifest-validate.
+#
+# on-event pull_request y SIN on-target-branch: se valida todo PR, vaya a la rama
+# que vaya. Un cambio hacia `main` merece el mismo filtro que uno hacia `test`.
+apiVersion: tekton.dev/v1
+kind: PipelineRun
+metadata:
+  name: validate-config-pr
+  annotations:
+    pipelinesascode.tekton.dev/on-event: "[pull_request]"
+    pipelinesascode.tekton.dev/max-keep-runs: "10"
+spec:
+  pipelineRef:
+    # El Pipeline lo gobierna la plataforma y vive en el cluster, no en este repo.
+    resolver: cluster
+    params:
+      - {name: kind, value: pipeline}
+      - {name: name, value: validate-manifests}
+      - {name: namespace, value: workshop-demo-dev}
+  taskRunTemplate:
+    serviceAccountName: builder
+  timeouts:
+    pipeline: 20m0s
+  params:
+    - {name: repo-url, value: "{{repo_url}}"}
+    - {name: revision, value: "{{revision}}"}
+    # Los manifiestos de este repo los despliega el AppProject de aplicaciones.
+    - {name: appproject, value: workshop-platform}
+    # En dev un marcador es trabajo en curso; en el resto, un defecto.
+    - {name: fail-on-placeholder, value: "test,prod,contingencia"}
+  workspaces:
+    - name: source
+      volumeClaimTemplate:
+        spec:
+          accessModes: [ReadWriteOnce]
+          resources:
+            requests:
+              storage: 1Gi

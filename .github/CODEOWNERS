@@ -1,0 +1,34 @@
+# Quien debe revisar cada cambio.
+#
+# En un repositorio de configuracion de aplicaciones el eje no es el componente,
+# es el AMBIENTE: el mismo fichero cambiado en overlays/dev y en overlays/prod
+# tiene consecuencias distintas. Quien desarrolla no aprueba su propio despliegue
+# a produccion -- es la segregacion de funciones que pide una auditoria.
+#
+# COMO SE ACTIVA: los equipos deben existir en la organizacion y la rama
+# protegerse con "Require review from Code Owners". Sin eso, esto es
+# documentacion y no un control.
+#
+# Los nombres de equipo son marcadores: sustituir por los reales al adoptar.
+
+# Por defecto, el equipo de la aplicacion.
+*                                       @CHANGE_ME_ORG/app-developers
+
+# Desarrollo y pruebas: el equipo decide solo.
+/apps/*/overlays/dev/                   @CHANGE_ME_ORG/app-developers
+/apps/*/overlays/test/                  @CHANGE_ME_ORG/app-developers
+
+# Produccion y contingencia: ademas del equipo, quien opera el ambiente. Aqui es
+# donde entra la ventana de cambio.
+/apps/*/overlays/prod/                  @CHANGE_ME_ORG/app-developers @CHANGE_ME_ORG/release-managers
+/apps/*/overlays/contingencia/          @CHANGE_ME_ORG/app-developers @CHANGE_ME_ORG/release-managers
+
+# La base la heredan TODOS los ambientes: un cambio aqui llega a produccion sin
+# pasar por su overlay.
+/apps/*/base/                           @CHANGE_ME_ORG/app-developers @CHANGE_ME_ORG/release-managers
+
+# El CI corre con credenciales de registro y de Git.
+/.tekton/                               @CHANGE_ME_ORG/platform
+
+# Cambiar quien aprueba es un cambio de control de acceso.
+/.github/CODEOWNERS                     @CHANGE_ME_ORG/security
