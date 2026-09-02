@@ -21,7 +21,12 @@ spec:
     # a quien consume la API, y eso no es un failover. Lo que se conmuta es el DNS
     # (o el balanceador global), que reapunta ESTE nombre al gateway del sitio
     # activo. Por eso el dominio NO lleva el ambiente en el nombre.
-    - demo-prod.apps.ocp.2rndh.sandbox213.opentlc.com
+    #
+    # Es un dominio de NEGOCIO y no el `*.apps` de produccion. Con el dominio del
+    # cluster esta ruta NO llegaba a adjuntarse aqui —el listener de este sitio
+    # sirve otro dominio y no hay interseccion posible—, asi que el gateway se
+    # quedaba con attachedRoutes=0: el failover no habria servido trafico.
+    - demo.api.workshop.example
   rules:
     - matches:
         - path:

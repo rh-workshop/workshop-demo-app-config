@@ -1,4 +1,12 @@
 # Exposición del servicio de PRODUCCION a través del gateway compartido.
+#
+# EL HOSTNAME ES DE NEGOCIO, no el dominio *.apps del cluster, y ese es el punto:
+# es el mismo que publica el sitio de CONTINGENCIA. Conmutar entre sitios es
+# reapuntar el DNS a otro gateway, sin que quien consume la API cambie nada.
+#
+# Atarlo a `*.apps.<cluster>` haria imposible el failover: el listener del sitio
+# de respaldo lleva OTRO dominio y un HTTPRoute solo se adjunta si su hostname
+# interseca con el del listener, asi que la ruta no llegaria a programarse alli.
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
@@ -11,8 +19,9 @@ spec:
     - name: shared-gateway
       namespace: platform-gateway
   hostnames:
-    # Sustituir por el dominio de apps del cluster donde corre PRODUCCION.
-    - demo-prod.apps.ocp.2rndh.sandbox213.opentlc.com
+    # Dominio de NEGOCIO, servido por el listener `https-business` del gateway.
+    # Identico en produccion y contingencia: sustituir por el del cliente.
+    - demo.api.workshop.example
   rules:
     - matches:
         - path:
