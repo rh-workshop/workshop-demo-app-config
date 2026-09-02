@@ -1,0 +1,11 @@
+# Datos de ESTE cluster y ambiente, en un unico sitio.
+#
+# Kustomize lo inyecta en la AuthPolicy (ver `replacements` en kustomization.yaml):
+# al adoptar el material solo se edita este fichero por overlay.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: cluster-values
+data:
+  # Issuer del realm de confianza: https://sso.apps.<cluster>.<dominio-base>/realms/workshop
+  issuerUrl: https://sso.apps.ocp.2rndh.sandbox213.opentlc.com/realms/workshop

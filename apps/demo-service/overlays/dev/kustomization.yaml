@@ -7,6 +7,7 @@ namespace: workshop-demo-dev
 resources:
 - ../../base
 - namespace-workshop-demo-dev.yaml
+- configmap-cluster-values.yaml
 - httproute-demo-service.yaml
 
 # La imagen se resuelve contra el registro corporativo (Quay) y se fija
@@ -20,11 +21,21 @@ images:
 # el entorno en la respuesta del servicio.
 # El issuer de Keycloak es propio de cada entorno.
 patches:
-- path: authpolicy-demo-service-jwt.yaml
-  target:
-    kind: AuthPolicy
-    name: demo-service
 - path: configmap-demo-service-env-config.yaml
   target:
     kind: ConfigMap
     name: demo-service-config
+
+# El issuer es un dato del cluster: la base deja el marcador y el overlay lo
+# resuelve. Sin sustituir, Authorino no resuelve el JWKS y la API responde 401.
+replacements:
+  - source:
+      kind: ConfigMap
+      name: cluster-values
+      fieldPath: data.issuerUrl
+    targets:
+      - select:
+          kind: AuthPolicy
+          name: demo-service
+        fieldPaths:
+          - spec.rules.authentication.token-valido.jwt.issuerUrl

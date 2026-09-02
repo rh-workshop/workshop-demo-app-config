@@ -14,15 +14,6 @@ patches:
     target:
       kind: AuthPolicy
       name: canary-service
-  # Canary automático: mismo hostname e issuer del entorno que el manual.
-  - path: httproute-canary-auto.yaml
-    target:
-      kind: HTTPRoute
-      name: canary-service-auto
-  - path: authpolicy-canary-auto-jwt.yaml
-    target:
-      kind: AuthPolicy
-      name: canary-service-auto
 # La base deja un placeholder y aquí se resuelve la imagen real: es el punto
 # donde el pipeline de CI escribe el digest recién construido. Los tres servicios
 # comparten esta imagen: v1 y v2 solo cambian el APP_VERSION que anuncian.

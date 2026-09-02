@@ -25,7 +25,7 @@ comando contra el cluster.
 | Ruta | Contenido |
 |---|---|
 | `apps/demo-service/` | Deployment, Service y ConfigMap de la aplicación, con overlays `dev`, `test`, `prod` y `contingencia` (la cadena de promoción completa) |
-| `apps/canary-service/` | Despliegue canary en dos variantes: MANUAL (dos versiones con reparto por pesos en la HTTPRoute) y AUTOMÁTICO (Rollout de Argo Rollouts + AnalysisTemplate que promociona o revierte solo por métricas) |
+| `apps/canary-service/` | Despliegue canary con Connectivity Link: dos versiones del servicio y reparto de tráfico por pesos en la HTTPRoute |
 | `apps/bluegreen-service/` | Despliegue blue-green: dos versiones con conmutación total de tráfico |
 | `apps/circuit-breaker-service/` | Frontend y backend con DestinationRule de circuit breaker |
 | `policies/` | AuthPolicy y RateLimitPolicy del servicio |

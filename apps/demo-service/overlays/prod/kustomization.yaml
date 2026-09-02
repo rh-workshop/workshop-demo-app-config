@@ -13,6 +13,7 @@ namespace: workshop-demo-prod
 resources:
   - ../../base
   - namespace-workshop-demo-prod.yaml
+  - configmap-cluster-values.yaml
   - httproute-demo-service.yaml
 
 # La imagen se fija por DIGEST, nunca por tag: un tag puede reapuntarse después
@@ -33,3 +34,17 @@ patches:
     target:
       kind: Deployment
       name: demo-service
+
+# El issuer es un dato del cluster: la base deja el marcador y el overlay lo
+# resuelve. Sin sustituir, Authorino no resuelve el JWKS y la API responde 401.
+replacements:
+  - source:
+      kind: ConfigMap
+      name: cluster-values
+      fieldPath: data.issuerUrl
+    targets:
+      - select:
+          kind: AuthPolicy
+          name: demo-service
+        fieldPaths:
+          - spec.rules.authentication.token-valido.jwt.issuerUrl

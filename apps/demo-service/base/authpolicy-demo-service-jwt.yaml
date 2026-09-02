@@ -22,8 +22,10 @@ spec:
     authentication:
       token-valido:
         jwt:
-          # Sustituir por el issuer del Keycloak del cluster (valor genérico de la base; se ajusta por overlay): https://sso.apps.<cluster>.<dominio-base>/realms/workshop
-          issuerUrl: https://sso.apps.cluster.ejemplo.com/realms/workshop
+          # Cada overlay lo sustituye por el issuer de su cluster (ver
+          # `replacements` en el overlay). Es un valor invalido a proposito: asi el
+          # fallo aparece en el render y no en el cluster.
+          issuerUrl: CHANGE_ME_ISSUER_URL
         credentials:
           authorizationHeader:
             prefix: Bearer
