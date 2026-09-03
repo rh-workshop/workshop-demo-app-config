@@ -50,6 +50,11 @@ spec:
     # valor que hoy corre en dev (o la rama ci/promote-* que publica el CI).
     - name: image-digest
       value: sha256:6bf6aa621b1e8e1e144a342e63d3dc7316bcfe9c637239ea441df61a9725e509
+    # Tag INMUTABLE con el que la imagen aparece en la organizacion destino: el
+    # git-<sha> que genero el CI. No es la identidad (esa es el digest), sino la
+    # etiqueta legible que permite rastrear de que commit salio el artefacto.
+    - name: image-tag
+      value: git-ef433a8
     - name: target-overlay-path
       value: apps/demo-service/overlays/test
     # Firma SIEMPRE verificada: si la imagen no esta firmada por la llave de la
