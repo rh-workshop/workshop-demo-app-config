@@ -1,0 +1,48 @@
+# Mock LLM que responde con formato OpenAI (usage.total_tokens).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mock-llm
+  namespace: atp-pipeline-validation
+  labels:
+    app: mock-llm
+    workshop.user: pipeline-validation
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mock-llm
+  template:
+    metadata:
+      labels:
+        app: mock-llm
+    spec:
+      containers:
+        - name: mock
+          image: mock-llm
+          ports:
+            - name: http
+              containerPort: 8080
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mock-llm
+  namespace: atp-pipeline-validation
+  labels:
+    app: mock-llm
+spec:
+  type: ClusterIP
+  selector:
+    app: mock-llm
+  ports:
+    - name: http
+      port: 8080
+      targetPort: http

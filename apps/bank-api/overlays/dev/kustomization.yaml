@@ -1,0 +1,9 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+- workload.yaml
+# CI replaces this logical image with the signed digest. Do not deploy before CI succeeds.
+images:
+- name: bank-api
+  newName: company-quay-quay-quay-enterprise.apps.ocp.hq2ss.sandbox3270.opentlc.com/company-dev/bank-api
+  newTag: pending-ci
