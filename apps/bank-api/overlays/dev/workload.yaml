@@ -1,0 +1,64 @@
+# Backend del Lab 4 — app HTTP simple (Deployment + Service, sin imagen privada).
+#
+# Usa la imagen estándar de Red Hat registry.redhat.io/ubi9/python-311, así que
+# NO hace falta ningún pull-secret a un registry privado. La app es genérica a
+# propósito: el punto del lab no es el backend, sino gobernarlo SIN tocarlo con
+# las políticas del Gateway.
+#
+# Expone tres endpoints estilo Open Banking UK que consume la HTTPRoute del Lab 4:
+#   GET /api/v1/party     → identidad de la "cuenta" (caso práctico del cliente)
+#   GET /api/v1/accounts  → listado de cuentas
+#   GET /admin/audit-log  → endpoint sensible: sólo para el rol admin. El backend
+#                           lo sirve siempre; quien decide si pasa es la AuthPolicy.
+#
+# La AUTENTICACIÓN no vive aquí: la resuelve la AuthPolicy (JWT/Keycloak) en el
+# Gateway, ANTES de llegar a este backend. Esta app solo responde el negocio.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: bank-api
+  namespace: atp-pipeline-validation
+  labels:
+    app: bank-api
+    workshop.user: pipeline-validation
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: bank-api
+  template:
+    metadata:
+      labels:
+        app: bank-api
+    spec:
+      containers:
+        - name: api
+          image: bank-api
+          ports:
+            - name: http
+              containerPort: 8080
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bank-api
+  namespace: atp-pipeline-validation
+  labels:
+    app: bank-api
+    workshop.user: pipeline-validation
+spec:
+  type: ClusterIP
+  selector:
+    app: bank-api
+  ports:
+    - name: http
+      # Service bank-api:8080 — coincide con el backendRef de la HTTPRoute.
+      port: 8080
+      targetPort: http
